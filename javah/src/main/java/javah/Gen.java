@@ -62,13 +62,13 @@ import javax.tools.StandardLocation;
  * Subclasses are for specific native interfaces. At the time of its
  * original writing, this interface is rich enough to support JNI and the
  * old 1.0-style native method interface.
- *
+ * <p/>
  * <p><b>This is NOT part of any supported API.
  * If you write code that depends on this, you do so at your own
  * risk.  This code and its internal interfaces are subject to change
  * or deletion without notice.</b></p>
  *
- * @author  Sucheta Dambalkar(Revised)
+ * @author Sucheta Dambalkar(Revised)
  */
 public abstract class Gen {
     protected String lineSep = System.getProperty("line.separator");
@@ -88,7 +88,7 @@ public abstract class Gen {
      */
     protected Set<TypeElement> classes;
     static private final boolean isWindows =
-        System.getProperty("os.name").startsWith("Windows");
+            System.getProperty("os.name").startsWith("Windows");
 
 
     /**
@@ -122,7 +122,7 @@ public abstract class Gen {
         this.classes = classes;
     }
 
-  public  void setProcessingEnvironment(ProcessingEnvironment pEnv) {
+    public void setProcessingEnvironment(ProcessingEnvironment pEnv) {
         processingEnvironment = pEnv;
         elems = pEnv.getElementUtils();
         types = pEnv.getTypeUtils();
@@ -154,9 +154,9 @@ public abstract class Gen {
     /**
      * After initializing state of an instance, use this method to start
      * processing.
-     *
+     * <p/>
      * Buffer size chosen as an approximation from a single sampling of:
-     *         expr `du -sk` / `ls *.h | wc -l`
+     * expr `du -sk` / `ls *.h | wc -l`
      */
     public void run() throws IOException, ClassNotFoundException, Util.Exit {
         int i = 0;
@@ -165,14 +165,14 @@ public abstract class Gen {
             ByteArrayOutputStream bout = new ByteArrayOutputStream(8192);
             writeFileTop(bout); /* only once */
 
-            for (TypeElement t: classes) {
+            for (TypeElement t : classes) {
                 write(bout, t);
             }
 
             writeIfChanged(bout.toByteArray(), outFile);
         } else {
             /* Each class goes to its own file... */
-            for (TypeElement t: classes) {
+            for (TypeElement t : classes) {
                 ByteArrayOutputStream bout = new ByteArrayOutputStream(8192);
                 writeFileTop(bout);
                 write(bout, t);
@@ -259,8 +259,8 @@ public abstract class Gen {
             if (value != null) { /* so it is a ConstantExpression */
                 String constString = null;
                 if ((value instanceof Integer)
-                    || (value instanceof Byte)
-                    || (value instanceof Short)) {
+                        || (value instanceof Byte)
+                        || (value instanceof Short)) {
                     /* covers byte, short, int */
                     constString = value.toString() + "L";
                 } else if (value instanceof Boolean) {
@@ -276,25 +276,21 @@ public abstract class Gen {
                         constString = value.toString() + "LL";
                 } else if (value instanceof Float) {
                     /* bug for bug */
-                    float fv = ((Float)value).floatValue();
+                    float fv = ((Float) value).floatValue();
                     if (Float.isInfinite(fv))
                         constString = ((fv < 0) ? "-" : "") + "Inff";
                     else
                         constString = value.toString() + "f";
                 } else if (value instanceof Double) {
                     /* bug for bug */
-                    double d = ((Double)value).doubleValue();
+                    double d = ((Double) value).doubleValue();
                     if (Double.isInfinite(d))
                         constString = ((d < 0) ? "-" : "") + "InfD";
                     else
                         constString = value.toString();
                 }
                 if (constString != null) {
-                    StringBuilder s = new StringBuilder("#undef ");
-                    s.append(cname); s.append("_"); s.append(fname); s.append(lineSep);
-                    s.append("#define "); s.append(cname); s.append("_");
-                    s.append(fname); s.append(" "); s.append(constString);
-                    return s.toString();
+                    return "#undef " + cname + "_" + fname + lineSep + "#define " + cname + "_" + fname + " " + constString;
                 }
 
             }
@@ -315,8 +311,8 @@ public abstract class Gen {
 
     protected String guardBegin(String cname) {
         return "/* Header for class " + cname + " */" + lineSep + lineSep +
-            "#ifndef _Included_" + cname + lineSep +
-            "#define _Included_" + cname;
+                "#ifndef _Included_" + cname + lineSep +
+                "#define _Included_" + cname;
     }
 
     protected String guardEnd(String cname) {
@@ -329,7 +325,7 @@ public abstract class Gen {
     protected void writeFileTop(OutputStream o) throws Util.Exit {
         PrintWriter pw = wrapWriter(o);
         pw.println("/* DO NOT EDIT THIS FILE - it is machine generated */" + lineSep +
-                   getIncludes());
+                getIncludes());
     }
 
     protected String baseFileName(CharSequence className) {
@@ -375,7 +371,7 @@ public abstract class Gen {
     String signature(ExecutableElement e) {
         StringBuilder sb = new StringBuilder("(");
         String sep = "";
-        for (VariableElement p: e.getParameters()) {
+        for (VariableElement p : e.getParameters()) {
             sb.append(sep);
             sb.append(types.erasure(p.asType()).toString());
             sep = ",";

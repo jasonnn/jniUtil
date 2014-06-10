@@ -26,7 +26,6 @@
 
 package javah;
 
-//import com.sun.tools.javah.TypeSignature;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
@@ -57,7 +56,7 @@ public class Mangle {
         public static final int METHOD_JDK_1     = 6;
         public static final int METHOD_JNI_SHORT = 7;
         public static final int METHOD_JNI_LONG  = 8;
-    };
+    }
 
     private Elements elems;
     private Types types;
@@ -178,7 +177,7 @@ public class Mangle {
     }
 
     /* Warning: Intentional ASCII operation. */
-    private static final boolean isalnum(char ch) {
+    private static boolean isalnum(char ch) {
         return ch <= 0x7f && /* quick test */
             ((ch >= 'A' && ch <= 'Z') ||
              (ch >= 'a' && ch <= 'z') ||
@@ -186,7 +185,7 @@ public class Mangle {
     }
 
     /* Warning: Intentional ASCII operation. */
-    private static final boolean isprint(char ch) {
+    private static  boolean isprint(char ch) {
         return ch >= 32 && ch <= 126;
     }
 }

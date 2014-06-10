@@ -5,7 +5,6 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.processing.Filer;
 import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
-import javax.tools.SimpleJavaFileObject;
 import java.io.*;
 import java.net.URI;
 

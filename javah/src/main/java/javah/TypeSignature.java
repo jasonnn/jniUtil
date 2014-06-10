@@ -121,12 +121,10 @@ public class TypeSignature {
 
         // Separates parameters.
         if (signature != null) {
-            if (signature.indexOf(",") != -1) {
+            if (signature.contains(",")) {
                 st = new StringTokenizer(signature, ",");
-                if (st != null) {
-                    while (st.hasMoreTokens()) {
-                        params.add(st.nextToken());
-                    }
+                while (st.hasMoreTokens()) {
+                    params.add(st.nextToken());
                 }
             } else {
                 params.add(signature);
@@ -137,7 +135,7 @@ public class TypeSignature {
         typeSignature = "(";
 
         // Gets indivisual internal parameter signature.
-        while (params.isEmpty() != true) {
+        while (!params.isEmpty()) {
             paramsig = params.remove(i).trim();
             paramJVMSig  = getParamJVMSignature(paramsig);
             if (paramJVMSig != null) {
@@ -179,20 +177,18 @@ public class TypeSignature {
 
         if(paramsig != null){
 
-            if(paramsig.indexOf("[]") != -1) {
+            if(paramsig.contains("[]")) {
                 // Gets array dimension.
                 int endindex = paramsig.indexOf("[]");
                 componentType = paramsig.substring(0, endindex);
                 String dimensionString =  paramsig.substring(endindex);
-                if(dimensionString != null){
-                    while(dimensionString.indexOf("[]") != -1){
-                        paramJVMSig += "[";
-                        int beginindex = dimensionString.indexOf("]") + 1;
-                        if(beginindex < dimensionString.length()){
-                            dimensionString = dimensionString.substring(beginindex);
-                        }else
-                            dimensionString = "";
-                    }
+                while(dimensionString.contains("[]")){
+                    paramJVMSig += "[";
+                    int beginindex = dimensionString.indexOf("]") + 1;
+                    if(beginindex < dimensionString.length()){
+                        dimensionString = dimensionString.substring(beginindex);
+                    }else
+                        dimensionString = "";
                 }
             } else componentType = paramsig;
 

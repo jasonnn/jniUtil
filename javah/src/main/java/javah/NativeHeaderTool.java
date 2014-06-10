@@ -23,20 +23,13 @@
  * questions.
  */
 
-package javah; //javax.tools;
+package javah;
 
+import javax.tools.*;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Locale;
 import java.util.concurrent.Callable;
-import javax.tools.Diagnostic;
-import javax.tools.DiagnosticListener;
-import javax.tools.JavaFileManager;
-import javax.tools.JavaFileObject;
-import javax.tools.OptionChecker;
-import javax.tools.StandardJavaFileManager;
-import javax.tools.StandardLocation;
-import javax.tools.Tool;
 
 /**
  * This class is intended to be put in javax.tools.
