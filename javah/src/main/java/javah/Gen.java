@@ -70,6 +70,7 @@ import javax.tools.StandardLocation;
  *
  * @author Sucheta Dambalkar(Revised)
  */
+@SuppressWarnings("StringConcatenationMissingWhitespace")
 public abstract class Gen {
     protected String lineSep = System.getProperty("line.separator");
 
@@ -118,6 +119,7 @@ public abstract class Gen {
     }
 
 
+    @SuppressWarnings("AssignmentToCollectionOrArrayFieldFromParameter")
     public void setClasses(Set<TypeElement> classes) {
         this.classes = classes;
     }
@@ -276,14 +278,14 @@ public abstract class Gen {
                         constString = value.toString() + "LL";
                 } else if (value instanceof Float) {
                     /* bug for bug */
-                    float fv = ((Float) value).floatValue();
+                    float fv = (Float) value;
                     if (Float.isInfinite(fv))
                         constString = ((fv < 0) ? "-" : "") + "Inff";
                     else
                         constString = value.toString() + "f";
                 } else if (value instanceof Double) {
                     /* bug for bug */
-                    double d = ((Double) value).doubleValue();
+                    double d = (Double) value;
                     if (Double.isInfinite(d))
                         constString = ((d < 0) ? "-" : "") + "InfD";
                     else

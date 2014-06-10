@@ -52,6 +52,7 @@ import javax.tools.JavaFileObject;
 public class Util {
     /** Exit is used to replace the use of System.exit in the original javah.
      */
+    @SuppressWarnings({"CheckedExceptionClass", "UncheckedExceptionClass"})
     public static class Exit extends Error {
         private static final long serialVersionUID = 430820978114067221L;
         Exit(int exitValue) {

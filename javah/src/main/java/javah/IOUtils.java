@@ -1,5 +1,6 @@
 package javah;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
 import javax.tools.Diagnostic;
@@ -38,7 +39,7 @@ public class IOUtils {
     public static DiagnosticListener<JavaFileObject> getDiagnosticListenerForWriter(Writer w) {
         final PrintWriter pw = getPrintWriterForWriter(w);
         return new DiagnosticListener<JavaFileObject>() {
-            public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
+            public void report(@NotNull Diagnostic<? extends JavaFileObject> diagnostic) {
                 if (diagnostic.getKind() == Diagnostic.Kind.ERROR) {
                     pw.print(getMessage("err.prefix"));
                     pw.print(" ");

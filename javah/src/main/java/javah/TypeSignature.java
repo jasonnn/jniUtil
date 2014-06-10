@@ -26,6 +26,8 @@
 
 package javah;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.*;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
@@ -253,12 +255,12 @@ public class TypeSignature {
             }
 
             @Override
-            public Name visitPrimitive(PrimitiveType t, Void p) {
+            public Name visitPrimitive(@NotNull PrimitiveType t, Void p) {
                 return elems.getName(t.toString());
             }
 
             @Override
-            public Name visitNoType(NoType t, Void p) {
+            public Name visitNoType(@NotNull NoType t, Void p) {
                 if (t.getKind() == TypeKind.VOID)
                     return elems.getName("void");
                 return defaultAction(t, p);

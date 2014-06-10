@@ -12,6 +12,7 @@ import java.lang.reflect.Field;
 import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
 import static org.junit.Assert.assertEquals;
 
+@SuppressWarnings({"StaticVariableUsedBeforeInitialization", "PackageVisibleField", "StaticVariableMayNotBeInitialized"})
 public class JNIProcessorTest {
     static final JavaFileObject MY_CLASS_TEST = JavaFileObjects.forResource(JNIProcessorTest.class.getResource("/pkg/MyClass.java"));
     static final JavaFileObject MY_CLASS_EXPECTED = JavaFileObjects.forResource(JNIProcessorTest.class.getResource("/pkg/pkg_MyClass.h"));

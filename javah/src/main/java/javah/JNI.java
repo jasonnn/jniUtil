@@ -54,10 +54,12 @@ public class JNI extends Gen {
         super(util);
     }
 
+    @Override
     public String getIncludes() {
         return "#include <jni.h>";
     }
 
+    @Override
     public void write(OutputStream o, TypeElement clazz) throws Util.Exit {
         try {
             String cname = mangler.mangle(clazz.getQualifiedName(), javah.Mangle.Type.CLASS);
@@ -71,8 +73,7 @@ public class JNI extends Gen {
             for (VariableElement v : classfields) {
                 if (!v.getModifiers().contains(Modifier.STATIC))
                     continue;
-                String s = null;
-                s = defineForStatic(clazz, v);
+                String s = defineForStatic(clazz, v);
                 if (s != null) {
                     pw.println(s);
                 }
@@ -88,6 +89,7 @@ public class JNI extends Gen {
                     CharSequence methodName = md.getSimpleName();
                     boolean longName = false;
                     for (ExecutableElement md2 : classmethods) {
+                        //TODO ???
                         if ((md2 != md)
                                 && (methodName.equals(md2.getSimpleName()))
                                 && (md2.getModifiers().contains(Modifier.NATIVE)))
@@ -108,7 +110,7 @@ public class JNI extends Gen {
                                             javah.Mangle.Type.METHOD_JNI_SHORT));
                     pw.print("  (JNIEnv *, ");
                     List<? extends VariableElement> paramargs = md.getParameters();
-                    List<TypeMirror> args = new ArrayList<TypeMirror>();
+                    List<TypeMirror> args = new ArrayList<TypeMirror>(paramargs.size());
                     for (VariableElement p : paramargs) {
                         args.add(types.erasure(p.asType()));
                     }
