@@ -30,9 +30,8 @@ import java.nio.charset.Charset;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileObject;
 
-//import com.sun.tools.javac.file.JavacFileManager;
+import com.sun.tools.javac.file.JavacFileManager;
 import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.DefaultFileManager;
 
 /**
  *  javah's implementation of JavaFileManager.
@@ -42,10 +41,9 @@ import com.sun.tools.javac.util.DefaultFileManager;
  *  This code and its internal interfaces are subject to change or
  *  deletion without notice.</b>
  */
-class JavahFileManager extends DefaultFileManager/*JavacFileManager*/ {
+class JavahFileManager extends JavacFileManager {
     private JavahFileManager(Context context, Charset charset) {
         super(context, true, charset);
-        //ignoreSymbolFile=true;
         setSymbolFileEnabled(false);
     }
 
@@ -57,9 +55,5 @@ class JavahFileManager extends DefaultFileManager/*JavacFileManager*/ {
         javac_context.put(com.sun.tools.javac.util.Log.outKey, log);
 
         return new JavahFileManager(javac_context, null);
-    }
-
-    public void setSymbolFileEnabled(boolean symbolFileEnabled) {
-        this.ignoreSymbolFile = !symbolFileEnabled;
     }
 }

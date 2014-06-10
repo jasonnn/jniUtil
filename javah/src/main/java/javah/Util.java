@@ -80,7 +80,7 @@ public class Util {
     public PrintWriter log;
     public DiagnosticListener<? super JavaFileObject> dl;
 
-    Util(PrintWriter log, DiagnosticListener<? super JavaFileObject> dl) {
+    public Util(PrintWriter log, DiagnosticListener<? super JavaFileObject> dl) {
         this.log = log;
         this.dl = dl;
     }
@@ -97,7 +97,7 @@ public class Util {
 
     private void initMessages() throws Exit {
         try {
-            m = ResourceBundle.getBundle("com.sun.tools.javah.resources.l10n");
+            m = ResourceBundle.getBundle("javah.l10n");
         } catch (MissingResourceException mre) {
             fatal("Error loading resources.  Please file a bug report.", mre);
         }

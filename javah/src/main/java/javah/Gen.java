@@ -122,7 +122,7 @@ public abstract class Gen {
         this.classes = classes;
     }
 
-    void setProcessingEnvironment(ProcessingEnvironment pEnv) {
+  public  void setProcessingEnvironment(ProcessingEnvironment pEnv) {
         processingEnvironment = pEnv;
         elems = pEnv.getElementUtils();
         types = pEnv.getTypeUtils();

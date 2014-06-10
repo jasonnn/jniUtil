@@ -41,16 +41,16 @@ import javax.lang.model.util.ElementFilter;
 
 /**
  * Header file generator for JNI.
- *
+ * <p/>
  * <p><b>This is NOT part of any supported API.
  * If you write code that depends on this, you do so at your own
  * risk.  This code and its internal interfaces are subject to change
  * or deletion without notice.</b></p>
  *
- * @author  Sucheta Dambalkar(Revised)
+ * @author Sucheta Dambalkar(Revised)
  */
 public class JNI extends Gen {
-    JNI(Util util) {
+    public JNI(Util util) {
         super(util);
     }
 
@@ -68,7 +68,7 @@ public class JNI extends Gen {
             /* Write statics. */
             List<VariableElement> classfields = getAllFields(clazz);
 
-            for (VariableElement v: classfields) {
+            for (VariableElement v : classfields) {
                 if (!v.getModifiers().contains(Modifier.STATIC))
                     continue;
                 String s = null;
@@ -80,36 +80,36 @@ public class JNI extends Gen {
 
             /* Write methods. */
             List<ExecutableElement> classmethods = ElementFilter.methodsIn(clazz.getEnclosedElements());
-            for (ExecutableElement md: classmethods) {
-                if(md.getModifiers().contains(Modifier.NATIVE)){
+            for (ExecutableElement md : classmethods) {
+                if (md.getModifiers().contains(Modifier.NATIVE)) {
                     TypeMirror mtr = types.erasure(md.getReturnType());
                     String sig = signature(md);
                     TypeSignature newtypesig = new TypeSignature(elems);
                     CharSequence methodName = md.getSimpleName();
                     boolean longName = false;
-                    for (ExecutableElement md2: classmethods) {
+                    for (ExecutableElement md2 : classmethods) {
                         if ((md2 != md)
-                            && (methodName.equals(md2.getSimpleName()))
-                            && (md2.getModifiers().contains(Modifier.NATIVE)))
+                                && (methodName.equals(md2.getSimpleName()))
+                                && (md2.getModifiers().contains(Modifier.NATIVE)))
                             longName = true;
 
                     }
                     pw.println("/*");
                     pw.println(" * Class:     " + cname);
                     pw.println(" * Method:    " +
-                               mangler.mangle(methodName, javah.Mangle.Type.FIELDSTUB));
+                            mangler.mangle(methodName, javah.Mangle.Type.FIELDSTUB));
                     pw.println(" * Signature: " + newtypesig.getTypeSignature(sig, mtr));
                     pw.println(" */");
                     pw.println("JNIEXPORT " + jniType(mtr) +
-                               " JNICALL " +
-                               mangler.mangleMethod(md, clazz,
-                                                   (longName) ?
-                                                   javah.Mangle.Type.METHOD_JNI_LONG :
-                                                   javah.Mangle.Type.METHOD_JNI_SHORT));
+                            " JNICALL " +
+                            mangler.mangleMethod(md, clazz,
+                                    (longName) ?
+                                            javah.Mangle.Type.METHOD_JNI_LONG :
+                                            javah.Mangle.Type.METHOD_JNI_SHORT));
                     pw.print("  (JNIEnv *, ");
                     List<? extends VariableElement> paramargs = md.getParameters();
                     List<TypeMirror> args = new ArrayList<TypeMirror>();
-                    for (VariableElement p: paramargs) {
+                    for (VariableElement p : paramargs) {
                         args.add(types.erasure(p.asType()));
                     }
                     if (md.getModifiers().contains(Modifier.STATIC))
@@ -117,7 +117,7 @@ public class JNI extends Gen {
                     else
                         pw.print("jobject");
 
-                    for (TypeMirror arg: args) {
+                    for (TypeMirror arg : args) {
                         pw.print(", ");
                         pw.print(jniType(arg));
                     }
@@ -143,29 +143,48 @@ public class JNI extends Gen {
             case ARRAY: {
                 TypeMirror ct = ((ArrayType) t).getComponentType();
                 switch (ct.getKind()) {
-                    case BOOLEAN:  return "jbooleanArray";
-                    case BYTE:     return "jbyteArray";
-                    case CHAR:     return "jcharArray";
-                    case SHORT:    return "jshortArray";
-                    case INT:      return "jintArray";
-                    case LONG:     return "jlongArray";
-                    case FLOAT:    return "jfloatArray";
-                    case DOUBLE:   return "jdoubleArray";
+                    case BOOLEAN:
+                        return "jbooleanArray";
+                    case BYTE:
+                        return "jbyteArray";
+                    case CHAR:
+                        return "jcharArray";
+                    case SHORT:
+                        return "jshortArray";
+                    case INT:
+                        return "jintArray";
+                    case LONG:
+                        return "jlongArray";
+                    case FLOAT:
+                        return "jfloatArray";
+                    case DOUBLE:
+                        return "jdoubleArray";
                     case ARRAY:
-                    case DECLARED: return "jobjectArray";
-                    default: throw new Error(ct.toString());
+                    case DECLARED:
+                        return "jobjectArray";
+                    default:
+                        throw new Error(ct.toString());
                 }
             }
 
-            case VOID:     return "void";
-            case BOOLEAN:  return "jboolean";
-            case BYTE:     return "jbyte";
-            case CHAR:     return "jchar";
-            case SHORT:    return "jshort";
-            case INT:      return "jint";
-            case LONG:     return "jlong";
-            case FLOAT:    return "jfloat";
-            case DOUBLE:   return "jdouble";
+            case VOID:
+                return "void";
+            case BOOLEAN:
+                return "jboolean";
+            case BYTE:
+                return "jbyte";
+            case CHAR:
+                return "jchar";
+            case SHORT:
+                return "jshort";
+            case INT:
+                return "jint";
+            case LONG:
+                return "jlong";
+            case FLOAT:
+                return "jfloat";
+            case DOUBLE:
+                return "jdouble";
 
             case DECLARED: {
                 if (tclassDoc.equals(jString))

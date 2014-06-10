@@ -4,3 +4,5 @@ include 'processor'
 
 include 'javah'
 
+include 'testProject'
+
