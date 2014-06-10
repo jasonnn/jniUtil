@@ -23,7 +23,7 @@
  * questions.
  */
 
-package stolen.com.sun.tools.javah;
+package javah;
 
 //import com.sun.tools.javah.Mangle;
 //import com.sun.tools.javah.Util;

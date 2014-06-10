@@ -1,5 +1,6 @@
 
 
 dependencies {
-   // testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile project(':javah')
+    testCompile group: 'com.google.testing.compile', name: 'compile-testing', version: '0.6-SNAPSHOT'
 }

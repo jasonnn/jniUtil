@@ -2,3 +2,5 @@ rootProject.name = 'jniUtil'
 
 include 'processor'
 
+include 'javah'
+

@@ -23,7 +23,7 @@
  * questions.
  */
 
-package stolen.com.sun.tools.javah; //javax.tools;
+package javah; //javax.tools;
 
 import java.io.Writer;
 import java.nio.charset.Charset;

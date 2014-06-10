@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2008, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,37 +23,18 @@
  * questions.
  */
 
-package stolen.com.sun.tools.javah;
-
-import java.io.PrintWriter;
-import java.nio.charset.Charset;
-import javax.tools.DiagnosticListener;
-import javax.tools.JavaFileObject;
-
-//import com.sun.tools.javac.file.JavacFileManager;
-import com.sun.tools.javac.util.Context;
+package javah;
 
 /**
- *  javah's implementation of JavaFileManager.
- *
  *  <p><b>This is NOT part of any supported API.
  *  If you write code that depends on this, you do so at your own risk.
  *  This code and its internal interfaces are subject to change or
  *  deletion without notice.</b>
  */
-class JavahFileManager extends JavacFileManager {
-    private JavahFileManager(Context context, Charset charset) {
-        super(context, true, charset);
-        setSymbolFileEnabled(false);
-    }
-
-    static JavahFileManager create(final DiagnosticListener<? super JavaFileObject> dl, PrintWriter log) {
-        Context javac_context = new Context();
-
-        if (dl != null)
-            javac_context.put(DiagnosticListener.class, dl);
-        javac_context.put(com.sun.tools.javac.util.Log.outKey, log);
-
-        return new JavahFileManager(javac_context, null);
+public class InternalError extends Error {
+    private static final long serialVersionUID = 8411861562497165022L;
+    InternalError(String msg, Throwable cause) {
+        super("Internal error: " + msg);
+        initCause(cause);
     }
 }

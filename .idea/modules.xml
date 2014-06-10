@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/javah/javah.iml" filepath="$PROJECT_DIR$/javah/javah.iml" />
       <module fileurl="file://$PROJECT_DIR$/jniUtil.iml" filepath="$PROJECT_DIR$/jniUtil.iml" />
       <module fileurl="file://$PROJECT_DIR$/processor/processor.iml" filepath="$PROJECT_DIR$/processor/processor.iml" />
     </modules>

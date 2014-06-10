@@ -23,9 +23,7 @@
  * questions.
  */
 
-package stolen.com.sun.tools.javah;
-
-import com.sun.tools.javah.*;
+package javah;
 
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -51,7 +49,7 @@ import javax.lang.model.util.ElementFilter;
  *
  * @author  Sucheta Dambalkar(Revised)
  */
-public class JNI extends com.sun.tools.javah.Gen {
+public class JNI extends Gen {
     JNI(Util util) {
         super(util);
     }
@@ -62,7 +60,7 @@ public class JNI extends com.sun.tools.javah.Gen {
 
     public void write(OutputStream o, TypeElement clazz) throws Util.Exit {
         try {
-            String cname = mangler.mangle(clazz.getQualifiedName(), Mangle.Type.CLASS);
+            String cname = mangler.mangle(clazz.getQualifiedName(), javah.Mangle.Type.CLASS);
             PrintWriter pw = wrapWriter(o);
             pw.println(guardBegin(cname));
             pw.println(cppGuardBegin());
@@ -99,15 +97,15 @@ public class JNI extends com.sun.tools.javah.Gen {
                     pw.println("/*");
                     pw.println(" * Class:     " + cname);
                     pw.println(" * Method:    " +
-                               mangler.mangle(methodName, Mangle.Type.FIELDSTUB));
+                               mangler.mangle(methodName, javah.Mangle.Type.FIELDSTUB));
                     pw.println(" * Signature: " + newtypesig.getTypeSignature(sig, mtr));
                     pw.println(" */");
                     pw.println("JNIEXPORT " + jniType(mtr) +
                                " JNICALL " +
                                mangler.mangleMethod(md, clazz,
                                                    (longName) ?
-                                                   Mangle.Type.METHOD_JNI_LONG :
-                                                   Mangle.Type.METHOD_JNI_SHORT));
+                                                   javah.Mangle.Type.METHOD_JNI_LONG :
+                                                   javah.Mangle.Type.METHOD_JNI_SHORT));
                     pw.print("  (JNIEnv *, ");
                     List<? extends VariableElement> paramargs = md.getParameters();
                     List<TypeMirror> args = new ArrayList<TypeMirror>();

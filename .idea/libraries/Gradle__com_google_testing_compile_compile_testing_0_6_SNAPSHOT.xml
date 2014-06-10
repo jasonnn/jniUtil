@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Gradle: com.google.testing.compile:compile-testing:0.6-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/google/testing/compile/compile-testing/0.6-SNAPSHOT/compile-testing-0.6-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

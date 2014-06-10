@@ -23,7 +23,7 @@
  * questions.
  */
 
-package stolen.com.sun.tools.javah;
+package javah;
 
 import java.io.InputStream;
 import java.io.OutputStream;

@@ -24,9 +24,9 @@
  */
 
 
-package stolen.com.sun.tools.javah;
+package javah;
 
-import com.sun.tools.javah.TypeSignature;
+//import com.sun.tools.javah.TypeSignature;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;

@@ -23,7 +23,7 @@
  * questions.
  */
 
-package stolen.com.sun.tools.javah;
+package javah;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -61,7 +61,8 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVisitor;
 import javax.lang.model.util.ElementFilter;
-import javax.lang.model.util.SimpleTypeVisitor8;
+//import javax.lang.model.util.SimpleTypeVisitor8;
+import javax.lang.model.util.SimpleTypeVisitor6;
 import javax.lang.model.util.Types;
 
 import javax.tools.Diagnostic;
@@ -77,7 +78,7 @@ import static javax.tools.Diagnostic.Kind.*;
 
 import com.sun.tools.javac.code.Symbol.CompletionFailure;
 import com.sun.tools.javac.main.CommandLine;
-import com.sun.tools.javah.*;
+//import com.sun.tools.javah.*;
 
 /**
  * Javah generates support files for native methods.
@@ -446,15 +447,12 @@ public class JavahTask implements NativeHeaderTool.NativeHeaderTask {
 
         util.verbose = verbose;
 
-        com.sun.tools.javah.Gen g;
+        Gen g;
 
-        if (llni)
-            g = new LLNI(doubleAlign, util);
-        else {
 //            if (stubs)
 //                throw new BadArgs("jni.no.stubs");
             g = new JNI(util);
-        }
+
 
         if (ofile != null) {
             if (!(fileManager instanceof StandardJavaFileManager)) {
@@ -632,7 +630,7 @@ public class JavahTask implements NativeHeaderTool.NativeHeaderTask {
                 b = ResourceBundle.getBundle("com.sun.tools.javah.resources.l10n", locale);
                 bundles.put(locale, b);
             } catch (MissingResourceException e) {
-                throw new java.lang.InternalError("Cannot find javah resource bundle for locale " + locale, e);
+                throw new InternalError("Cannot find javah resource bundle for locale " + locale, e);
             }
         }
 
@@ -673,7 +671,7 @@ public class JavahTask implements NativeHeaderTool.NativeHeaderTask {
     class JavahProcessor extends AbstractProcessor {
         private Messager messager;
 
-        JavahProcessor(com.sun.tools.javah.Gen g) {
+        JavahProcessor(Gen g) {
             this.g = g;
         }
 
@@ -740,7 +738,7 @@ public class JavahTask implements NativeHeaderTool.NativeHeaderTask {
         }
 
         private TypeVisitor<Void,Types> checkMethodParametersVisitor =
-                new SimpleTypeVisitor8<Void,Types>() {
+                new SimpleTypeVisitor6<Void,Types>() {
             @Override
             public Void visitArray(ArrayType t, Types types) {
                 visit(t.getComponentType(), types);
@@ -755,7 +753,7 @@ public class JavahTask implements NativeHeaderTool.NativeHeaderTask {
             }
         };
 
-        private com.sun.tools.javah.Gen g;
+        private Gen g;
         private Util.Exit exit;
     }
 }

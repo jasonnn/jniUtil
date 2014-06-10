@@ -24,7 +24,7 @@
  */
 
 
-package stolen.com.sun.tools.javah;
+package javah;
 
 import java.io.PrintWriter;
 import java.text.MessageFormat;
