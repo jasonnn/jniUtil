@@ -27,6 +27,7 @@
 package javah;
 
 import javah.ex.Exit;
+import jniHelper.processor.JNIProcessorConfig;
 import org.jetbrains.annotations.PropertyKey;
 
 import java.io.PrintWriter;
@@ -51,7 +52,17 @@ import javax.tools.JavaFileObject;
  * risk.  This code and its internal interfaces are subject to change
  * or deletion without notice.</b></p>
  */
+//TODO use messager
 public class JNILogger {
+
+    public static JNILogger getDefault(JNIProcessorConfig config) {
+        DiagnosticListener<JavaFileObject> diagnosticListener = IOUtils.getDiagnosticListenerForStream(System.err);
+        return new JNILogger(IOUtils.getPrintWriterForStream(System.out), diagnosticListener);
+    }
+
+    public static JNILogger getDefault() {
+        return getDefault(JNIProcessorConfig.DEFAULT);
+    }
 
     /*
      * Help for verbosity.
@@ -81,17 +92,17 @@ public class JNILogger {
     public void bug(@PropertyKey(resourceBundle = "javah.l10n") String key, Exception e) throws Exit {
         dl.report(createDiagnostic(Kind.ERROR, key));
         dl.report(createDiagnostic(Kind.NOTE, "bug.report"));
-        throw new Exit(11, e);
+        throw new Exit(Exit.STATUS.BUG, e);
     }
 
     public void error(@PropertyKey(resourceBundle = "javah.l10n") String key, Object... args) throws Exit {
         dl.report(createDiagnostic(Kind.ERROR, key, args));
-        throw new Exit(15);
+        throw new Exit(Exit.STATUS.ERROR);
     }
 
     private void fatal(String msg, Exception e) throws Exit {
         dl.report(createDiagnostic(Kind.ERROR, "", msg));
-        throw new Exit(10, e);
+        throw new Exit(Exit.STATUS.FATAL, e);
     }
 
     private static Diagnostic<JavaFileObject> createDiagnostic(

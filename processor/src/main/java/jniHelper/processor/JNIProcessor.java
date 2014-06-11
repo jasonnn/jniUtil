@@ -1,6 +1,5 @@
 package jniHelper.processor;
 
-import javah.IOUtils;
 import javah.JNI;
 import javah.JNILogger;
 import org.jetbrains.annotations.NotNull;
@@ -13,8 +12,6 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
-import javax.tools.DiagnosticListener;
-import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -25,15 +22,23 @@ import java.util.Set;
 /**
  * Created by jason on 6/9/14.
  */
+/*
+call order:
+init
+sourceVersion
+annotationTypes
+getOptions
+process
+process
+ */
 public class JNIProcessor implements Processor {
-    private static final Set<String> SUPPORTED_OPTIONS = Collections.emptySet(); //singleton("options");
     private static final Set<String> SUPPORTED_ANNOTATIONS = Collections.singleton("*");
 
 
     @NotNull
     @Override
     public Set<String> getSupportedOptions() {
-        return SUPPORTED_OPTIONS;
+        return JNIProcessorOption.getSupportedOptions();
     }
 
     @NotNull
@@ -48,18 +53,21 @@ public class JNIProcessor implements Processor {
     }
 
 
-    protected Elements elements;
-    protected Messager log;
-    protected Filer filer;
-    protected ProcessingEnvironment env;
+    protected Elements elements = null;
+    protected Filer filer = null;
+    protected ProcessingEnvironment env = null;
+    JNI jni = null;
 
     @Override
     public void init(@NotNull ProcessingEnvironment processingEnv) {
         this.env = processingEnv;
         elements = processingEnv.getElementUtils();
-        log = processingEnv.getMessager();
         filer = processingEnv.getFiler();
-        //  parseOptions(processingEnv.getOptions().get("options"));
+        //  config = JNIProcessorConfig.fromMap(processingEnv.getOptions());
+
+
+        jni = new JNI(JNILogger.getDefault());
+        jni.setProcessingEnvironment(env);
 
     }
 
@@ -71,17 +79,8 @@ public class JNIProcessor implements Processor {
             }
         }
 
-        DiagnosticListener<JavaFileObject> diagnosticListener = IOUtils.getDiagnosticListenerForStream(System.err);
-
-
-        JNILogger util = new JNILogger(IOUtils.getPrintWriterForStream(System.out), diagnosticListener);
-        util.verbose = true;
-        JNI jni = new JNI(util);//new MyJNI(util,filer);
-        jni.setProcessingEnvironment(env);
         jni.setClasses(natives);
-
         jni.run();
-
 
     }
 
@@ -93,7 +92,7 @@ public class JNIProcessor implements Processor {
         } catch (Exception e) {
             StringWriter sw = new StringWriter();
             e.printStackTrace(new PrintWriter(sw));
-            log.printMessage(Diagnostic.Kind.ERROR, sw.toString());
+            env.getMessager().printMessage(Diagnostic.Kind.ERROR, sw.toString());
         }
 
         return false;
