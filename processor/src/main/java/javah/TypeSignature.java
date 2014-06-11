@@ -26,6 +26,7 @@
 
 package javah;
 
+import javah.ex.SignatureException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -54,12 +55,6 @@ import javax.lang.model.util.SimpleTypeVisitor6;
  */
 
 public class TypeSignature {
-    static class SignatureException extends Exception {
-        private static final long serialVersionUID = 1L;
-        SignatureException(String reason) {
-            super(reason);
-        }
-    }
 
     Elements elems;
 

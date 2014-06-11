@@ -1,11 +1,10 @@
 package jniHelper.processor;
 
 import javah.JNI;
-import javah.Util;
+import javah.JNILogger;
 
 import javax.annotation.processing.Filer;
 import javax.tools.FileObject;
-import javax.tools.StandardLocation;
 import java.io.IOException;
 
 /**
@@ -15,8 +14,8 @@ import java.io.IOException;
 public class MyJNI extends JNI {
     private final Filer filer;
 
-    public MyJNI(Util util, Filer filer) {
-        super(util);
+    public MyJNI(JNILogger log, Filer filer) {
+        super(log);
         this.filer = filer;
     }
 

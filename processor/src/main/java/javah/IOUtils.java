@@ -9,6 +9,7 @@ import javax.tools.JavaFileObject;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.lang.*;
 import java.text.MessageFormat;
 import java.util.*;
 
@@ -50,30 +51,10 @@ public class IOUtils {
     }
 
 
-    static final Map<Locale, ResourceBundle> bundles = new HashMap<Locale, ResourceBundle>();
-
     public static String getMessage(@PropertyKey(resourceBundle = "javah.l10n") String key, Object... args) {
-        return getMessage(Locale.getDefault(), key, args);
+        return MessageFormat.format(resourceBundle.getString(key), args);
     }
 
-    public static String getMessage(Locale locale, @PropertyKey(resourceBundle = "javah.l10n") String key, Object... args) {
+    private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("javah.l10n");
 
-        ResourceBundle b = bundles.get(locale);
-        if (b == null) {
-            try {
-
-                b = ResourceBundle.getBundle("javah.l10n", locale);
-                bundles.put(locale, b);
-            } catch (MissingResourceException e) {
-                throw new InternalError("Cannot find javah resource bundle for locale " + locale, e);
-            }
-        }
-
-        try {
-            return MessageFormat.format(b.getString(key), args);
-        } catch (MissingResourceException e) {
-            return key;
-            //throw new InternalError(e, key);
-        }
-    }
 }

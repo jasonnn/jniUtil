@@ -27,6 +27,8 @@
 package javah;
 
 
+import javah.ex.SignatureException;
+
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -115,7 +117,7 @@ public class Mangle {
     }
 
     public String mangleMethod(ExecutableElement method, TypeElement clazz,
-                                      int mtype) throws TypeSignature.SignatureException {
+                                      int mtype) throws SignatureException {
         StringBuilder result = new StringBuilder(100);
         result.append("Java_");
 
@@ -151,7 +153,7 @@ public class Mangle {
             return elems.getBinaryName(clazz).toString();
         }
 
-    public final String mangleChar(char ch) {
+    public static String mangleChar(char ch) {
         String s = Integer.toHexString(ch);
         int nzeros = 5 - s.length();
         char[] result = new char[6];

@@ -1,8 +1,3 @@
-rootProject.name = 'jniUtil'
+//rootProject.name = 'jniUtil'
 
-include 'processor'
-
-include 'javah'
-
-include 'testProject'
-
+include 'processor','testProject'

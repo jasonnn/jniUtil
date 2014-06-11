@@ -25,6 +25,9 @@
 
 package javah;
 
+import javah.ex.Exit;
+import javah.ex.SignatureException;
+
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -50,8 +53,8 @@ import javax.lang.model.util.ElementFilter;
  * @author Sucheta Dambalkar(Revised)
  */
 public class JNI extends Gen {
-    public JNI(Util util) {
-        super(util);
+    public JNI(JNILogger log) {
+        super(log);
     }
 
     @Override
@@ -60,9 +63,9 @@ public class JNI extends Gen {
     }
 
     @Override
-    public void write(OutputStream o, TypeElement clazz) throws Util.Exit {
+    public void write(OutputStream o, TypeElement clazz) throws Exit {
         try {
-            String cname = mangler.mangle(clazz.getQualifiedName(), javah.Mangle.Type.CLASS);
+            String cname = mangler.mangle(clazz.getQualifiedName(), Mangle.Type.CLASS);
             PrintWriter pw = wrapWriter(o);
             pw.println(guardBegin(cname));
             pw.println(cppGuardBegin());
@@ -99,15 +102,15 @@ public class JNI extends Gen {
                     pw.println("/*");
                     pw.println(" * Class:     " + cname);
                     pw.println(" * Method:    " +
-                            mangler.mangle(methodName, javah.Mangle.Type.FIELDSTUB));
+                            mangler.mangle(methodName, Mangle.Type.FIELDSTUB));
                     pw.println(" * Signature: " + newtypesig.getTypeSignature(sig, mtr));
                     pw.println(" */");
                     pw.println("JNIEXPORT " + jniType(mtr) +
                             " JNICALL " +
                             mangler.mangleMethod(md, clazz,
                                     (longName) ?
-                                            javah.Mangle.Type.METHOD_JNI_LONG :
-                                            javah.Mangle.Type.METHOD_JNI_SHORT));
+                                            Mangle.Type.METHOD_JNI_LONG :
+                                            Mangle.Type.METHOD_JNI_SHORT));
                     pw.print("  (JNIEnv *, ");
                     List<? extends VariableElement> paramargs = md.getParameters();
                     List<TypeMirror> args = new ArrayList<TypeMirror>(paramargs.size());
@@ -128,13 +131,13 @@ public class JNI extends Gen {
             }
             pw.println(cppGuardEnd());
             pw.println(guardEnd(cname));
-        } catch (TypeSignature.SignatureException e) {
-            util.error("jni.sigerror", e.getMessage());
+        } catch (SignatureException e) {
+            log.error("jni.sigerror", e.getMessage());
         }
     }
 
 
-    protected final String jniType(TypeMirror t) throws Util.Exit {
+    protected final String jniType(TypeMirror t) throws Exit {
         TypeElement throwable = elems.getTypeElement("java.lang.Throwable");
         TypeElement jClass = elems.getTypeElement("java.lang.Class");
         TypeElement jString = elems.getTypeElement("java.lang.String");
@@ -200,7 +203,8 @@ public class JNI extends Gen {
             }
         }
 
-        util.bug("jni.unknown.type");
+        log.bug("jni.unknown.type");
+
         return null; /* dead code. */
     }
 }

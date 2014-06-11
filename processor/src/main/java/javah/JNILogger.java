@@ -26,11 +26,11 @@
 
 package javah;
 
+import javah.ex.Exit;
+import org.jetbrains.annotations.PropertyKey;
+
 import java.io.PrintWriter;
-import java.text.MessageFormat;
 import java.util.Locale;
-import java.util.ResourceBundle;
-import java.util.MissingResourceException;
 import javax.tools.Diagnostic;
 import javax.tools.Diagnostic.Kind;
 import javax.tools.DiagnosticListener;
@@ -38,40 +38,18 @@ import javax.tools.JavaFileObject;
 
 /**
  * Messages, verbose and error handling support.
- *
+ * <p/>
  * For errors, the failure modes are:
- *      error -- User did something wrong
- *      bug   -- Bug has occurred in javah
- *      fatal -- We can't even find resources, so bail fast, don't localize
- *
+ * error -- User did something wrong
+ * bug   -- Bug has occurred in javah.javah
+ * fatal -- We can't even find resources, so bail fast, don't localize
+ * <p/>
  * <p><b>This is NOT part of any supported API.
  * If you write code that depends on this, you do so at your own
  * risk.  This code and its internal interfaces are subject to change
  * or deletion without notice.</b></p>
  */
-public class Util {
-    /** Exit is used to replace the use of System.exit in the original javah.
-     */
-    @SuppressWarnings({"CheckedExceptionClass", "UncheckedExceptionClass"})
-    public static class Exit extends Error {
-        private static final long serialVersionUID = 430820978114067221L;
-        Exit(int exitValue) {
-            this(exitValue, null);
-        }
-
-        Exit(int exitValue, Throwable cause) {
-            super(cause);
-            this.exitValue = exitValue;
-            this.cause = cause;
-        }
-
-        Exit(Exit e) {
-            this(e.exitValue, e.cause);
-        }
-
-        public final int exitValue;
-        public final Throwable cause;
-    }
+public class JNILogger {
 
     /*
      * Help for verbosity.
@@ -81,7 +59,7 @@ public class Util {
     public PrintWriter log;
     public DiagnosticListener<? super JavaFileObject> dl;
 
-    public Util(PrintWriter log, DiagnosticListener<? super JavaFileObject> dl) {
+    public JNILogger(PrintWriter log, DiagnosticListener<? super JavaFileObject> dl) {
         this.log = log;
         this.dl = dl;
     }
@@ -92,55 +70,19 @@ public class Util {
 
 
     /*
-     * Help for loading localized messages.
-     */
-    private ResourceBundle m;
-
-    private void initMessages() throws Exit {
-        try {
-            m = ResourceBundle.getBundle("javah.l10n");
-        } catch (MissingResourceException mre) {
-            fatal("Error loading resources.  Please file a bug report.", mre);
-        }
-    }
-
-    private String getText(String key, Object... args) throws Exit {
-        if (m == null)
-            initMessages();
-        try {
-            return MessageFormat.format(m.getString(key), args);
-        } catch (MissingResourceException e) {
-            fatal("Key " + key + " not found in resources.", e);
-        }
-        return null; /* dead code */
-    }
-
-    /*
-     * Usage message.
-     */
-    public void usage() throws Exit {
-        log.println(getText("usage"));
-    }
-
-    public void version() throws Exit {
-        log.println(getText("javah.version",
-                                   System.getProperty("java.version"), null));
-    }
-
-    /*
      * Failure modes.
      */
-    public void bug(String key) throws Exit {
+    public void bug(@PropertyKey(resourceBundle = "javah.l10n") String key) throws Exit {
         bug(key, null);
     }
 
-    public void bug(String key, Exception e) throws Exit {
+    public void bug(@PropertyKey(resourceBundle = "javah.l10n") String key, Exception e) throws Exit {
         dl.report(createDiagnostic(Kind.ERROR, key));
         dl.report(createDiagnostic(Kind.NOTE, "bug.report"));
         throw new Exit(11, e);
     }
 
-    public void error(String key, Object... args) throws Exit {
+    public void error(@PropertyKey(resourceBundle = "javah.l10n") String key, Object... args) throws Exit {
         dl.report(createDiagnostic(Kind.ERROR, key, args));
         throw new Exit(15);
     }
@@ -150,35 +92,43 @@ public class Util {
         throw new Exit(10, e);
     }
 
-    private Diagnostic<JavaFileObject> createDiagnostic(
+    private static Diagnostic<JavaFileObject> createDiagnostic(
             final Kind kind, final String code, final Object... args) {
         return new Diagnostic<JavaFileObject>() {
             public String getCode() {
                 return code;
             }
+
             public long getColumnNumber() {
                 return Diagnostic.NOPOS;
             }
+
             public long getEndPosition() {
                 return Diagnostic.NOPOS;
             }
+
             public Kind getKind() {
                 return kind;
             }
+
             public long getLineNumber() {
                 return Diagnostic.NOPOS;
             }
+
             public String getMessage(Locale locale) {
                 if (code.length() == 0)
                     return (String) args[0];
-                return getText(code, args); // FIXME locale
+                return IOUtils.getMessage(code, args); // FIXME locale
             }
+
             public long getPosition() {
                 return Diagnostic.NOPOS;
             }
+
             public JavaFileObject getSource() {
                 return null;
             }
+
             public long getStartPosition() {
                 return Diagnostic.NOPOS;
             }

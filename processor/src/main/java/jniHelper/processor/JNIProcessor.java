@@ -2,7 +2,7 @@ package jniHelper.processor;
 
 import javah.IOUtils;
 import javah.JNI;
-import javah.Util;
+import javah.JNILogger;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.processing.*;
@@ -75,7 +75,7 @@ public class JNIProcessor implements Processor {
         DiagnosticListener<JavaFileObject> diagnosticListener = IOUtils.getDiagnosticListenerForStream(System.err);
 
 
-        Util util = new Util(log, diagnosticListener);
+        JNILogger util = new JNILogger(log, diagnosticListener);
         util.verbose=true;
         JNI jni = new MyJNI(util,filer);
         jni.setProcessingEnvironment(env);
