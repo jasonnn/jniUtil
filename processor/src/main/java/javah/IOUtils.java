@@ -42,19 +42,11 @@ public class IOUtils {
         return new DiagnosticListener<JavaFileObject>() {
             public void report(@NotNull Diagnostic<? extends JavaFileObject> diagnostic) {
                 if (diagnostic.getKind() == Diagnostic.Kind.ERROR) {
-                    pw.print(getMessage("err.prefix"));
+                    pw.print(JNILogger.getMessage("err.prefix"));
                     pw.print(" ");
                 }
                 pw.println(diagnostic.getMessage(null));
             }
         };
     }
-
-
-    public static String getMessage(@PropertyKey(resourceBundle = "javah.l10n") String key, Object... args) {
-        return MessageFormat.format(resourceBundle.getString(key), args);
-    }
-
-    private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("javah.l10n");
-
 }

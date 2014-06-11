@@ -3,6 +3,8 @@ package jniHelper.processor;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.testing.compile.CompileTester;
 import com.google.testing.compile.JavaFileObjects;
+import org.hamcrest.core.StringEndsWith;
+import org.hamcrest.core.StringStartsWith;
 import org.junit.Test;
 import org.truth0.Truth;
 
@@ -10,7 +12,9 @@ import javax.tools.JavaFileObject;
 import java.lang.reflect.Field;
 
 import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
+import static org.hamcrest.core.StringEndsWith.endsWith;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 @SuppressWarnings({"StaticVariableUsedBeforeInitialization", "PackageVisibleField", "StaticVariableMayNotBeInitialized"})
 public class JNIProcessorTest {
@@ -62,7 +66,9 @@ public class JNIProcessorTest {
         String actual = gen.getCharContent(true).toString();
 
         assertEquals(expected, actual);
-        // assertThat(expected, equalToIgnoringWhiteSpace(actual));
+
+
+        assertThat(gen.toUri().getPath(), endsWith(".h"));
 
 
     }

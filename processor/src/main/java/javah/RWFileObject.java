@@ -1,4 +1,4 @@
-package jniHelper.processor;
+package javah;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -9,24 +9,25 @@ import java.io.*;
 import java.net.URI;
 
 /**
- * Created by jason on 6/9/14.
+ * Created by jason on 6/10/14.
  */
-public class MyFileObject /*extends SimpleJavaFileObject*/ implements FileObject{
-    final JavaFileManager.Location location;
-    final CharSequence name;
-    final Filer filer;
+public class RWFileObject implements FileObject {
+    private final JavaFileManager.Location location;
+    private final CharSequence name;
+    private final Filer filer;
 
-    public MyFileObject(JavaFileManager.Location location, CharSequence name, Filer filer) {
+    public RWFileObject(JavaFileManager.Location location, CharSequence name, Filer filer) {
         this.location = location;
         this.name = name;
         this.filer = filer;
     }
 
     protected FileObject forReading() throws IOException {
-        return filer.getResource(location,"",name);
+        return filer.getResource(location, "", name);
     }
-    protected FileObject forWriting() throws IOException{
-        return filer.createResource(location,"",name);
+
+    protected FileObject forWriting() throws IOException {
+        return filer.createResource(location, "", name);
     }
 
     @NotNull
@@ -35,9 +36,9 @@ public class MyFileObject /*extends SimpleJavaFileObject*/ implements FileObject
         try {
             return forWriting().toUri();
         } catch (IOException e) {
-            e.printStackTrace();
+          throw new RuntimeException(e);
         }
-        return null;
+
     }
 
     @Override
@@ -47,7 +48,7 @@ public class MyFileObject /*extends SimpleJavaFileObject*/ implements FileObject
 
     @Override
     public InputStream openInputStream() throws IOException {
-       return forReading().openInputStream();
+        return forReading().openInputStream();
     }
 
     @Override
@@ -74,9 +75,9 @@ public class MyFileObject /*extends SimpleJavaFileObject*/ implements FileObject
 
     @Override
     public long getLastModified() {
-        long result=0L;
+        long result = 0L;
         try {
-            result= forReading().getLastModified();
+            result = forReading().getLastModified();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -85,25 +86,20 @@ public class MyFileObject /*extends SimpleJavaFileObject*/ implements FileObject
 
     @Override
     public boolean delete() {
-        boolean result=false;
+        boolean result = false;
         try {
-            result= forWriting().delete();
+            result = forWriting().delete();
         } catch (IOException e) {
             e.printStackTrace();
         }
         return result;
     }
-//    /**
-//     * Construct a SimpleJavaFileObject of the given kind and with the
-//     * given URI.
-//     *
-//     * @param uri  the URI for this file object
-//     * @param kind the kind of this file object
-//     */
-//    protected MyFileObject(URI uri, Kind kind) {
-//        super(uri, kind);
-//    }
 
-
-
+    @Override
+    public String toString() {
+        return "RW_FILE_OBJECT{" +
+                "name=" + name +
+                ", location=" + location +
+                '}';
+    }
 }

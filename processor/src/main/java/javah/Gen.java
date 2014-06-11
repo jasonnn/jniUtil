@@ -27,6 +27,7 @@ package javah;
 
 
 import javah.ex.Exit;
+import jniHelper.processor.NATIVE_HEADERS_DIR;
 
 import java.io.UnsupportedEncodingException;
 import java.io.ByteArrayOutputStream;
@@ -42,12 +43,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
+import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
 
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
+import javax.lang.model.element.*;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
@@ -107,16 +106,18 @@ public abstract class Gen {
     /*
      * Output location.
      */
-    protected JavaFileManager fileManager;
-    protected JavaFileObject outFile;
+    //  protected JavaFileManager fileManager;
+    protected Filer filer;
+    JavaFileManager.Location genDir= NATIVE_HEADERS_DIR.INSTANCE;
+    //  protected JavaFileObject outFile;
 
-    public void setFileManager(JavaFileManager fm) {
-        fileManager = fm;
-    }
-
-    public void setOutFile(JavaFileObject outFile) {
-        this.outFile = outFile;
-    }
+//    public void setFileManager(JavaFileManager fm) {
+//        fileManager = fm;
+//    }
+//
+//    public void setOutFile(JavaFileObject outFile) {
+//        this.outFile = outFile;
+//    }
 
 
     @SuppressWarnings("AssignmentToCollectionOrArrayFieldFromParameter")
@@ -126,6 +127,7 @@ public abstract class Gen {
 
     public void setProcessingEnvironment(ProcessingEnvironment pEnv) {
         processingEnvironment = pEnv;
+        filer = pEnv.getFiler();
         elems = pEnv.getElementUtils();
         types = pEnv.getTypeUtils();
         mangler = new Mangle(elems, types);
@@ -162,25 +164,25 @@ public abstract class Gen {
      */
     public void run() throws IOException, ClassNotFoundException, Exit {
         int i = 0;
-        if (outFile != null) {
-            /* Everything goes to one big file... */
-            ByteArrayOutputStream bout = new ByteArrayOutputStream(8192);
-            writeFileTop(bout); /* only once */
-
-            for (TypeElement t : classes) {
-                write(bout, t);
-            }
-
-            writeIfChanged(bout.toByteArray(), outFile);
-        } else {
+//        if (outFile != null) {
+//            /* Everything goes to one big file... */
+//            ByteArrayOutputStream bout = new ByteArrayOutputStream(8192);
+//            writeFileTop(bout); /* only once */
+//
+//            for (TypeElement t : classes) {
+//                write(bout, t);
+//            }
+//
+//            writeIfChanged(bout.toByteArray(), outFile);
+//        } else {
             /* Each class goes to its own file... */
-            for (TypeElement t : classes) {
-                ByteArrayOutputStream bout = new ByteArrayOutputStream(8192);
-                writeFileTop(bout);
-                write(bout, t);
-                writeIfChanged(bout.toByteArray(), getFileObject(t.getQualifiedName()));
-            }
+        for (TypeElement t : classes) {
+            ByteArrayOutputStream bout = new ByteArrayOutputStream(8192);
+            writeFileTop(bout);
+            write(bout, t);
+            writeIfChanged(bout.toByteArray(), getFileObject(t.getQualifiedName()));
         }
+        // }
     }
 
     /*
@@ -209,17 +211,17 @@ public abstract class Gen {
                     event = "[Overwriting file ";
 
                 }
-            } catch (FileNotFoundException e) {
+            } catch (FileNotFoundException ignored) {
                 mustWrite = true;
                 event = "[Creating file ";
             }
         }
 
         if (log.verbose)
-            log.log(event + file + "]");
+            log.log(event + file + ']');
 
         if (mustWrite) {
-            OutputStream out = file.openOutputStream();
+            OutputStream out = file.openOutputStream();//getFileObjectForWriting(fqn).openOutputStream();//
             out.write(b); /* No buffering, just one big write! */
             out.close();
         }
@@ -336,8 +338,21 @@ public abstract class Gen {
 
     protected FileObject getFileObject(CharSequence className) throws IOException {
         String name = baseFileName(className) + getFileSuffix();
-        return fileManager.getFileForOutput(StandardLocation.SOURCE_OUTPUT, "", name, null);
+        return new RWFileObject(genDir, name, filer);
+        // return fileManager.getFileForOutput(StandardLocation.SOURCE_OUTPUT, "", name, null);
     }
+
+//    protected FileObject getFileObject(boolean read,CharSequence className) throws IOException {
+//        String name = baseFileName(className) + getFileSuffix();
+//        return  read ? filer.getResource(genDir,"",name): filer.createResource(genDir,"",name);
+//    }
+//    protected FileObject getFileObjectForReading(CharSequence className) throws IOException {
+//       return getFileObject(true,className);
+//    }
+//    protected FileObject getFileObjectForWriting(CharSequence className) throws IOException {
+//        return getFileObject(false,className);
+//    }
+
 
     protected String getFileSuffix() {
         return ".h";

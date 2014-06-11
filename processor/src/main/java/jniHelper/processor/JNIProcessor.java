@@ -55,7 +55,7 @@ public class JNIProcessor implements Processor {
 
     @Override
     public void init(@NotNull ProcessingEnvironment processingEnv) {
-        this.env=processingEnv;
+        this.env = processingEnv;
         elements = processingEnv.getElementUtils();
         log = processingEnv.getMessager();
         filer = processingEnv.getFiler();
@@ -71,19 +71,16 @@ public class JNIProcessor implements Processor {
             }
         }
 
-        PrintWriter log = IOUtils.getPrintWriterForStream(System.out);
         DiagnosticListener<JavaFileObject> diagnosticListener = IOUtils.getDiagnosticListenerForStream(System.err);
 
 
-        JNILogger util = new JNILogger(log, diagnosticListener);
-        util.verbose=true;
-        JNI jni = new MyJNI(util,filer);
+        JNILogger util = new JNILogger(IOUtils.getPrintWriterForStream(System.out), diagnosticListener);
+        util.verbose = true;
+        JNI jni = new JNI(util);//new MyJNI(util,filer);
         jni.setProcessingEnvironment(env);
         jni.setClasses(natives);
 
         jni.run();
-
-
 
 
     }

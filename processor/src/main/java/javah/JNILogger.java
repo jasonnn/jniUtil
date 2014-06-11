@@ -30,7 +30,9 @@ import javah.ex.Exit;
 import org.jetbrains.annotations.PropertyKey;
 
 import java.io.PrintWriter;
+import java.text.MessageFormat;
 import java.util.Locale;
+import java.util.ResourceBundle;
 import javax.tools.Diagnostic;
 import javax.tools.Diagnostic.Kind;
 import javax.tools.DiagnosticListener;
@@ -118,7 +120,7 @@ public class JNILogger {
             public String getMessage(Locale locale) {
                 if (code.length() == 0)
                     return (String) args[0];
-                return IOUtils.getMessage(code, args); // FIXME locale
+                return JNILogger.getMessage(code, args); // FIXME locale
             }
 
             public long getPosition() {
@@ -134,4 +136,10 @@ public class JNILogger {
             }
         };
     }
+
+    public static String getMessage(@PropertyKey(resourceBundle = "javah.l10n") String key, Object... args) {
+        return MessageFormat.format(resourceBundle.getString(key), args);
+    }
+
+    private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("javah.l10n");
 }
