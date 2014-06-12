@@ -1,7 +1,6 @@
 package javah;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.PropertyKey;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
@@ -9,9 +8,6 @@ import javax.tools.JavaFileObject;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.lang.*;
-import java.text.MessageFormat;
-import java.util.*;
 
 /**
  * Created by jason on 6/9/14.

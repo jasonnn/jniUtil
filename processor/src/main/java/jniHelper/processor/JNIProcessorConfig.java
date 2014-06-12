@@ -7,9 +7,11 @@ import java.util.Map;
  */
 public class JNIProcessorConfig {
 
-    public static JNIProcessorConfig DEFAULT = new JNIProcessorConfig(){
+    public static JNIProcessorConfig DEFAULT = new JNIProcessorConfig() {
         @Override
-        public void setVerbose(boolean verbose) {throw new UnsupportedOperationException("immutable");}
+        public void setVerbose(boolean verbose) {
+            throw new UnsupportedOperationException("immutable");
+        }
 
         @Override
         public boolean isVerbose() {
@@ -45,7 +47,18 @@ public class JNIProcessorConfig {
         public String getOutFile() {
             return "";
         }
+
+        @Override
+        public void setVerify(boolean verify) {
+            throw new UnsupportedOperationException("immutable");
+        }
+
+        @Override
+        public boolean isVerify() {
+            return true;
+        }
     };
+
 
     public static JNIProcessorConfig fromMap(Map<String, String> config) {
         return JNIProcessorOption.createConfig(config);
@@ -53,6 +66,7 @@ public class JNIProcessorConfig {
 
     private boolean verbose = false;
     private boolean force = false;
+    private boolean verify = true;
     private String outDir = null;
     private String outFile = null;
 
@@ -86,5 +100,13 @@ public class JNIProcessorConfig {
 
     public String getOutFile() {
         return outFile;
+    }
+
+    public void setVerify(boolean verify) {
+        this.verify = verify;
+    }
+
+    public boolean isVerify() {
+        return verify;
     }
 }

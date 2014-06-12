@@ -1,7 +1,6 @@
 package jniHelper.processor;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,6 +15,12 @@ public enum JNIProcessorOption {
         public void handle(JNIProcessorConfig ctx, String optionStr) {
             ctx.setVerbose(booleanVal(optionStr));
 
+        }
+    },
+    VERIFY("verify") {
+        @Override
+        public void handle(JNIProcessorConfig ctx, String optionStr) throws IllegalArgumentException {
+            ctx.setVerify(booleanVal(optionStr));
         }
     },
     FORCE("f", "force") {
@@ -50,11 +55,6 @@ public enum JNIProcessorOption {
         this.names = names;
     }
 
-    public void addOptionsTo(Set<String> opts) {
-        for (String s : names) {
-            opts.add("javah." + s);
-        }
-    }
 
     public String[] getOptionNames() {
         String[] oNames = new String[names.length];

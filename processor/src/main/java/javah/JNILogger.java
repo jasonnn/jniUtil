@@ -30,14 +30,14 @@ import javah.ex.Exit;
 import jniHelper.processor.JNIProcessorConfig;
 import org.jetbrains.annotations.PropertyKey;
 
-import java.io.PrintWriter;
-import java.text.MessageFormat;
-import java.util.Locale;
-import java.util.ResourceBundle;
 import javax.tools.Diagnostic;
 import javax.tools.Diagnostic.Kind;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileObject;
+import java.io.PrintWriter;
+import java.text.MessageFormat;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 /**
  * Messages, verbose and error handling support.
@@ -57,7 +57,9 @@ public class JNILogger {
 
     public static JNILogger getDefault(JNIProcessorConfig config) {
         DiagnosticListener<JavaFileObject> diagnosticListener = IOUtils.getDiagnosticListenerForStream(System.err);
-        return new JNILogger(IOUtils.getPrintWriterForStream(System.out), diagnosticListener);
+        JNILogger log = new JNILogger(IOUtils.getPrintWriterForStream(System.out), diagnosticListener);
+        log.verbose = config.isVerbose();
+        return log;
     }
 
     public static JNILogger getDefault() {

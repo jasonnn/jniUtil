@@ -27,34 +27,21 @@ package javah;
 
 
 import javah.ex.Exit;
-import jniHelper.processor.NATIVE_HEADERS_DIR;
-
-import java.io.UnsupportedEncodingException;
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.Stack;
+import jniHelper.processor.NativeHeadersLocation;
 
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
-
-import javax.lang.model.element.*;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
-
 import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardLocation;
+import java.io.*;
+import java.util.*;
 
 /**
  * An abstraction for generating support files required by native methods.
@@ -108,7 +95,7 @@ public abstract class Gen {
      */
     //  protected JavaFileManager fileManager;
     protected Filer filer;
-    JavaFileManager.Location genDir= NATIVE_HEADERS_DIR.INSTANCE;
+    JavaFileManager.Location genDir = NativeHeadersLocation.INSTANCE;
     //  protected JavaFileObject outFile;
 
 //    public void setFileManager(JavaFileManager fm) {

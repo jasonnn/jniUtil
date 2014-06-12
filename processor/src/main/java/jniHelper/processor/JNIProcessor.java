@@ -10,14 +10,13 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by jason on 6/9/14.
@@ -58,24 +57,30 @@ public class JNIProcessor implements Processor {
     protected ProcessingEnvironment env = null;
     JNI jni = null;
 
+
+    boolean verify = false;
+
     @Override
     public void init(@NotNull ProcessingEnvironment processingEnv) {
         this.env = processingEnv;
         elements = processingEnv.getElementUtils();
         filer = processingEnv.getFiler();
-        //  config = JNIProcessorConfig.fromMap(processingEnv.getOptions());
+        JNIProcessorConfig config = JNIProcessorConfig.fromMap(processingEnv.getOptions());
+        this.verify = config.isVerify();
 
 
-        jni = new JNI(JNILogger.getDefault());
+        jni = new JNI(JNILogger.getDefault(config));
         jni.setProcessingEnvironment(env);
 
     }
 
-    protected void doProcess(Set<? extends Element> rootElements) throws IOException, ClassNotFoundException {
+    protected void doProcess(Set<? extends TypeElement> rootElements) throws IOException, ClassNotFoundException {
         HashSet<TypeElement> natives = new HashSet<TypeElement>(rootElements.size());
-        for (Element element : rootElements) {
-            if (element.accept(NativeMethodScanner.INSTANCE, null)) {
-                natives.add((TypeElement) element);
+
+
+        for (TypeElement element : rootElements) {
+            if (Visitors.hasNativeMethods(element)) {
+                natives.add(element);
             }
         }
 
@@ -88,7 +93,8 @@ public class JNIProcessor implements Processor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         try {
-            doProcess(roundEnv.getRootElements());
+
+            doProcess(getAllClasses(ElementFilter.typesIn(roundEnv.getRootElements())));
         } catch (Exception e) {
             StringWriter sw = new StringWriter();
             e.printStackTrace(new PrintWriter(sw));
@@ -97,6 +103,18 @@ public class JNIProcessor implements Processor {
 
         return false;
     }
+
+    private static Set<TypeElement> getAllClasses(Set<? extends TypeElement> classes) {
+        Set<TypeElement> ret = new LinkedHashSet<TypeElement>();
+        ArrayDeque<TypeElement> accum = new ArrayDeque<TypeElement>(classes);
+        while (!accum.isEmpty()) {
+            TypeElement e = accum.pop();
+            ret.add(e);
+            accum.addAll(ElementFilter.typesIn(e.getEnclosedElements()));
+        }
+        return ret;
+    }
+
 
     @NotNull
     @Override
