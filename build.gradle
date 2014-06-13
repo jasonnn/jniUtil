@@ -26,3 +26,10 @@ project(':processor') {
 project(':testProject') {
 
 }
+
+
+idea{
+    module{
+        excludeDirs+=[file('.idea'),file('gradle')]
+    }
+}
