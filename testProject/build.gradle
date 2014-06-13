@@ -1,28 +1,3 @@
-buildscript {
-    // apply from: 'https://raw.github.com/bat-cha/gradle-plugin-git-dependencies/0.1/git-dependencies.gradle'
-    apply plugin: 'git-dependencies'
-    repositories {
-        jcenter()
-        mavenCentral()
-        maven {
-            url('http://openbakery.org/repository/')
-        }
-    }
-    dependencies {
-        classpath 'org.batcha.gradle.plugins:git-dependencies:0.2'
-
-        classpath "com.ofg:uptodate-gradle-plugin:0.0.2"
-        classpath 'org.batcha.gradle.plugins:git-dependencies:0.1'
-        classpath(group: 'de.felixschulze.gradle', name: 'gradle-xcode-plugin', version: '1.0-SNAPSHOT').ext.git = 'https://github.com/x2on/gradle-xcode-plugin.git'
-        //  classpath group: 'org.openbakery', name: 'xcodePlugin', version: '0.9+'
-
-    }
-}
-
-apply plugin: 'uptodate'
-apply plugin: 'xcode'
-
-
 task generateHeaders(dependsOn: compileJava) {
     String inputClass = 'pkg.MyClass';
 
