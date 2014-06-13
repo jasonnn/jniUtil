@@ -28,18 +28,14 @@ package javah;
 import javah.ex.Exit;
 import javah.ex.SignatureException;
 
+import javax.lang.model.element.*;
+import javax.lang.model.type.ArrayType;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.ElementFilter;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.ArrayType;
-import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.ElementFilter;
 
 
 /**
@@ -65,7 +61,7 @@ public class JNI extends Gen {
     @Override
     public void write(OutputStream o, TypeElement clazz) throws Exit {
         try {
-            String cname = mangler.mangle(clazz.getQualifiedName(), Mangle.Type.CLASS);
+            String cname = Mangle.mangle(clazz.getQualifiedName(), Mangle.Type.CLASS);
             PrintWriter pw = wrapWriter(o);
             pw.println(guardBegin(cname));
             pw.println(cppGuardBegin());
@@ -92,8 +88,8 @@ public class JNI extends Gen {
                     CharSequence methodName = md.getSimpleName();
                     boolean longName = false;
                     for (ExecutableElement md2 : classmethods) {
-                        //TODO ???
-                        if ((md2 != md)
+                        //TODO ??? ( was instance equality)
+                        if ((!md2.equals(md))
                                 && (methodName.equals(md2.getSimpleName()))
                                 && (md2.getModifiers().contains(Modifier.NATIVE)))
                             longName = true;
@@ -102,7 +98,7 @@ public class JNI extends Gen {
                     pw.println("/*");
                     pw.println(" * Class:     " + cname);
                     pw.println(" * Method:    " +
-                            mangler.mangle(methodName, Mangle.Type.FIELDSTUB));
+                            Mangle.mangle(methodName, Mangle.Type.FIELDSTUB));
                     pw.println(" * Signature: " + newtypesig.getTypeSignature(sig, mtr));
                     pw.println(" */");
                     pw.println("JNIEXPORT " + jniType(mtr) +

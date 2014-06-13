@@ -39,25 +39,25 @@ import javax.lang.model.util.Types;
  * A utility for mangling java identifiers into C names.  Should make
  * this more fine grained and distribute the functionality to the
  * generators.
- *
+ * <p/>
  * <p><b>This is NOT part of any supported API.
  * If you write code that depends on this, you do so at your own
  * risk.  This code and its internal interfaces are subject to change
  * or deletion without notice.</b></p>
  *
- * @author  Sucheta Dambalkar(Revised)
+ * @author Sucheta Dambalkar(Revised)
  */
 public class Mangle {
 
     public static class Type {
-        public static final int CLASS            = 1;
-        public static final int FIELDSTUB        = 2;
-        public static final int FIELD            = 3;
-        public static final int JNI              = 4;
-        public static final int SIGNATURE        = 5;
-        public static final int METHOD_JDK_1     = 6;
+        public static final int CLASS = 1;
+        public static final int FIELDSTUB = 2;
+        public static final int FIELD = 3;
+        public static final int JNI = 4;
+        public static final int SIGNATURE = 5;
+        public static final int METHOD_JDK_1 = 6;
         public static final int METHOD_JNI_SHORT = 7;
-        public static final int METHOD_JNI_LONG  = 8;
+        public static final int METHOD_JNI_LONG = 8;
     }
 
     private Elements elems;
@@ -68,7 +68,7 @@ public class Mangle {
         this.types = types;
     }
 
-    public final String mangle(CharSequence name, int mtype) {
+    public static String mangle(CharSequence name, int mtype) {
         StringBuilder result = new StringBuilder(100);
         int length = name.length();
 
@@ -77,10 +77,10 @@ public class Mangle {
             if (isalnum(ch)) {
                 result.append(ch);
             } else if ((ch == '.') &&
-                       mtype == Type.CLASS) {
+                    mtype == Type.CLASS) {
                 result.append('_');
-            } else if (( ch == '$') &&
-                       mtype == Type.CLASS) {
+            } else if ((ch == '$') &&
+                    mtype == Type.CLASS) {
                 result.append('_');
                 result.append('_');
             } else if (ch == '_' && mtype == Type.FIELDSTUB) {
@@ -117,7 +117,7 @@ public class Mangle {
     }
 
     public String mangleMethod(ExecutableElement method, TypeElement clazz,
-                                      int mtype) throws SignatureException {
+                               int mtype) throws SignatureException {
         StringBuilder result = new StringBuilder(100);
         result.append("Java_");
 
@@ -125,7 +125,7 @@ public class Mangle {
             result.append(mangle(clazz.getQualifiedName(), Type.CLASS));
             result.append('_');
             result.append(mangle(method.getSimpleName(),
-                                 Type.FIELD));
+                    Type.FIELD));
             result.append("_stub");
             return result.toString();
         }
@@ -134,12 +134,12 @@ public class Mangle {
         result.append(mangle(getInnerQualifiedName(clazz), Type.JNI));
         result.append('_');
         result.append(mangle(method.getSimpleName(),
-                             Type.JNI));
+                Type.JNI));
         if (mtype == Type.METHOD_JNI_LONG) {
             result.append("__");
             String typesig = signature(method);
             TypeSignature newTypeSig = new TypeSignature(elems);
-            String sig = newTypeSig.getTypeSignature(typesig,  method.getReturnType());
+            String sig = newTypeSig.getTypeSignature(typesig, method.getReturnType());
             sig = sig.substring(1);
             sig = sig.substring(0, sig.lastIndexOf(')'));
             sig = sig.replace('/', '.');
@@ -148,10 +148,11 @@ public class Mangle {
 
         return result.toString();
     }
+
     //where
-        private String getInnerQualifiedName(TypeElement clazz) {
-            return elems.getBinaryName(clazz).toString();
-        }
+    private String getInnerQualifiedName(TypeElement clazz) {
+        return elems.getBinaryName(clazz).toString();
+    }
 
     public static String mangleChar(char ch) {
         String s = Integer.toHexString(ch);
@@ -160,7 +161,7 @@ public class Mangle {
         result[0] = '_';
         for (int i = 1; i <= nzeros; i++)
             result[i] = '0';
-        for (int i = nzeros+1, j = 0; i < 6; i++, j++)
+        for (int i = nzeros + 1, j = 0; i < 6; i++, j++)
             result[i] = s.charAt(j);
         return new String(result);
     }
@@ -169,25 +170,25 @@ public class Mangle {
     private String signature(ExecutableElement e) {
         StringBuilder sb = new StringBuilder();
         String sep = "(";
-        for (VariableElement p: e.getParameters()) {
+        for (VariableElement p : e.getParameters()) {
             sb.append(sep);
             sb.append(types.erasure(p.asType()).toString());
             sep = ",";
         }
-        sb.append(")");
+        sb.append(')');
         return sb.toString();
     }
 
     /* Warning: Intentional ASCII operation. */
     private static boolean isalnum(char ch) {
         return ch <= 0x7f && /* quick test */
-            ((ch >= 'A' && ch <= 'Z') ||
-             (ch >= 'a' && ch <= 'z') ||
-             (ch >= '0' && ch <= '9'));
+                ((ch >= 'A' && ch <= 'Z') ||
+                        (ch >= 'a' && ch <= 'z') ||
+                        (ch >= '0' && ch <= '9'));
     }
 
     /* Warning: Intentional ASCII operation. */
-    private static  boolean isprint(char ch) {
+    private static boolean isprint(char ch) {
         return ch >= 32 && ch <= 126;
     }
 }

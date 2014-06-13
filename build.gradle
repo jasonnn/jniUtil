@@ -27,12 +27,5 @@ project(':processor'){
 }
 
 project(':testProject'){
-    build.doLast{
-        String inputClass = 'pkg.MyClass';
 
-        String outDir = new File(project.buildDir,"headers")
-        mkdir(outDir)
-
-        ant.javah(class: inputClass, destDir:outDir, classpath:sourceSets.main.output.asPath)
-    }
 }

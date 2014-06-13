@@ -1,5 +1,6 @@
 package jniHelper.processor;
 
+import javax.annotation.processing.Messager;
 import java.util.Map;
 
 /**
@@ -58,6 +59,7 @@ public class JNIProcessorConfig {
             return true;
         }
     };
+    private Messager messager;
 
 
     public static JNIProcessorConfig fromMap(Map<String, String> config) {
@@ -108,5 +110,13 @@ public class JNIProcessorConfig {
 
     public boolean isVerify() {
         return verify;
+    }
+
+    public Messager getMessager() {
+        return messager;
+    }
+
+    public void setMessager(Messager messager) {
+        this.messager = messager;
     }
 }

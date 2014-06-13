@@ -1,0 +1,16 @@
+gradle.projectsLoaded {
+    rootProject.with {
+        apply from: 'https://raw.github.com/bat-cha/gradle-plugin-git-dependencies/0.2/git-dependencies.gradle'
+        buildscript {
+
+            repositories {
+                mavenCentral()
+            }
+            dependencies {
+                dependencies {
+                    classpath 'org.batcha.gradle.plugins:git-dependencies:0.2'
+                }
+            }
+        }
+    }
+}

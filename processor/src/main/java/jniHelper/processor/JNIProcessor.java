@@ -66,6 +66,7 @@ public class JNIProcessor implements Processor {
         elements = processingEnv.getElementUtils();
         filer = processingEnv.getFiler();
         JNIProcessorConfig config = JNIProcessorConfig.fromMap(processingEnv.getOptions());
+        config.setMessager(processingEnv.getMessager());
         this.verify = config.isVerify();
 
 

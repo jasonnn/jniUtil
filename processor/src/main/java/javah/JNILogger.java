@@ -30,13 +30,9 @@ import javah.ex.Exit;
 import jniHelper.processor.JNIProcessorConfig;
 import org.jetbrains.annotations.PropertyKey;
 
-import javax.tools.Diagnostic;
+import javax.annotation.processing.Messager;
 import javax.tools.Diagnostic.Kind;
-import javax.tools.DiagnosticListener;
-import javax.tools.JavaFileObject;
-import java.io.PrintWriter;
 import java.text.MessageFormat;
-import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
@@ -56,31 +52,35 @@ import java.util.ResourceBundle;
 public class JNILogger {
 
     public static JNILogger getDefault(JNIProcessorConfig config) {
-        DiagnosticListener<JavaFileObject> diagnosticListener = IOUtils.getDiagnosticListenerForStream(System.err);
-        JNILogger log = new JNILogger(IOUtils.getPrintWriterForStream(System.out), diagnosticListener);
-        log.verbose = config.isVerbose();
-        return log;
+        // DiagnosticListener<JavaFileObject> diagnosticListener = IOUtils.getDiagnosticListenerForStream(System.err);
+
+        return new JNILogger(config.getMessager());
     }
 
     public static JNILogger getDefault() {
         return getDefault(JNIProcessorConfig.DEFAULT);
     }
 
-    /*
-     * Help for verbosity.
-     */
-    public boolean verbose = false;
+    public boolean isVerbose() {
+        return verbose;
+    }
 
-    public PrintWriter log;
-    public DiagnosticListener<? super JavaFileObject> dl;
+    private final boolean verbose;
 
-    public JNILogger(PrintWriter log, DiagnosticListener<? super JavaFileObject> dl) {
-        this.log = log;
-        this.dl = dl;
+
+    private final Messager messager;
+
+    public JNILogger(Messager messager) {
+        this(true, messager);
+    }
+
+    public JNILogger(boolean verbose, Messager messager) {
+        this.verbose = verbose;
+        this.messager = messager;
     }
 
     public void log(String s) {
-        log.println(s);
+        messager.printMessage(Kind.NOTE, s);
     }
 
 
@@ -92,63 +92,63 @@ public class JNILogger {
     }
 
     public void bug(@PropertyKey(resourceBundle = "javah.l10n") String key, Exception e) throws Exit {
-        dl.report(createDiagnostic(Kind.ERROR, key));
-        dl.report(createDiagnostic(Kind.NOTE, "bug.report"));
+        messager.printMessage(Kind.ERROR, getMessage(key));
+        messager.printMessage(Kind.OTHER, getMessage("bug.report"));
         throw new Exit(Exit.STATUS.BUG, e);
     }
 
     public void error(@PropertyKey(resourceBundle = "javah.l10n") String key, Object... args) throws Exit {
-        dl.report(createDiagnostic(Kind.ERROR, key, args));
+        messager.printMessage(Kind.ERROR, getMessage(key, args));
         throw new Exit(Exit.STATUS.ERROR);
     }
 
-    private void fatal(String msg, Exception e) throws Exit {
-        dl.report(createDiagnostic(Kind.ERROR, "", msg));
-        throw new Exit(Exit.STATUS.FATAL, e);
-    }
+//    private void fatal(String msg, Exception e) throws Exit {
+//        dl.report(createDiagnostic(Kind.ERROR, "", msg));
+//        throw new Exit(Exit.STATUS.FATAL, e);
+//    }
 
-    private static Diagnostic<JavaFileObject> createDiagnostic(
-            final Kind kind, final String code, final Object... args) {
-        return new Diagnostic<JavaFileObject>() {
-            public String getCode() {
-                return code;
-            }
-
-            public long getColumnNumber() {
-                return Diagnostic.NOPOS;
-            }
-
-            public long getEndPosition() {
-                return Diagnostic.NOPOS;
-            }
-
-            public Kind getKind() {
-                return kind;
-            }
-
-            public long getLineNumber() {
-                return Diagnostic.NOPOS;
-            }
-
-            public String getMessage(Locale locale) {
-                if (code.length() == 0)
-                    return (String) args[0];
-                return JNILogger.getMessage(code, args); // FIXME locale
-            }
-
-            public long getPosition() {
-                return Diagnostic.NOPOS;
-            }
-
-            public JavaFileObject getSource() {
-                return null;
-            }
-
-            public long getStartPosition() {
-                return Diagnostic.NOPOS;
-            }
-        };
-    }
+//    private static Diagnostic<JavaFileObject> createDiagnostic(
+//            final Kind kind, final String code, final Object... args) {
+//        return new Diagnostic<JavaFileObject>() {
+//            public String getCode() {
+//                return code;
+//            }
+//
+//            public long getColumnNumber() {
+//                return Diagnostic.NOPOS;
+//            }
+//
+//            public long getEndPosition() {
+//                return Diagnostic.NOPOS;
+//            }
+//
+//            public Kind getKind() {
+//                return kind;
+//            }
+//
+//            public long getLineNumber() {
+//                return Diagnostic.NOPOS;
+//            }
+//
+//            public String getMessage(Locale locale) {
+//                if (code.length() == 0)
+//                    return (String) args[0];
+//                return JNILogger.getMessage(code, args); // FIXME locale
+//            }
+//
+//            public long getPosition() {
+//                return Diagnostic.NOPOS;
+//            }
+//
+//            public JavaFileObject getSource() {
+//                return null;
+//            }
+//
+//            public long getStartPosition() {
+//                return Diagnostic.NOPOS;
+//            }
+//        };
+//    }
 
     public static String getMessage(@PropertyKey(resourceBundle = "javah.l10n") String key, Object... args) {
         return MessageFormat.format(resourceBundle.getString(key), args);

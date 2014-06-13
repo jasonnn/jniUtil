@@ -60,10 +60,10 @@ import java.util.*;
 public abstract class Gen {
     protected String lineSep = System.getProperty("line.separator");
 
-    protected ProcessingEnvironment processingEnvironment;
-    protected Types types;
-    protected Elements elems;
-    protected Mangle mangler;
+    protected ProcessingEnvironment processingEnvironment = null;
+    protected Types types = null;
+    protected Elements elems = null;
+    protected Mangle mangler = null;
     protected JNILogger log;
 
     protected Gen(JNILogger log) {
@@ -73,9 +73,8 @@ public abstract class Gen {
     /*
      * List of classes for which we must generate output.
      */
-    protected Set<TypeElement> classes;
-    static private final boolean isWindows =
-            System.getProperty("os.name").startsWith("Windows");
+    protected Set<TypeElement> classes = null;
+    static private final boolean isWindows = System.getProperty("os.name").startsWith("Windows");
 
 
     /**
@@ -93,18 +92,8 @@ public abstract class Gen {
     /*
      * Output location.
      */
-    //  protected JavaFileManager fileManager;
-    protected Filer filer;
-    JavaFileManager.Location genDir = NativeHeadersLocation.INSTANCE;
-    //  protected JavaFileObject outFile;
-
-//    public void setFileManager(JavaFileManager fm) {
-//        fileManager = fm;
-//    }
-//
-//    public void setOutFile(JavaFileObject outFile) {
-//        this.outFile = outFile;
-//    }
+    protected JavaFileManager.Location genDir = NativeHeadersLocation.INSTANCE;
+    protected Filer filer = null;
 
 
     @SuppressWarnings("AssignmentToCollectionOrArrayFieldFromParameter")
@@ -136,7 +125,7 @@ public abstract class Gen {
     protected PrintWriter wrapWriter(OutputStream o) throws Exit {
         try {
             return new PrintWriter(new OutputStreamWriter(o, "ISO8859_1"), true);
-        } catch (UnsupportedEncodingException use) {
+        } catch (UnsupportedEncodingException ignored) {
             log.bug("encoding.iso8859_1.not.found");
             return null; /* dead code */
         }
@@ -150,7 +139,8 @@ public abstract class Gen {
      * expr `du -sk` / `ls *.h | wc -l`
      */
     public void run() throws IOException, ClassNotFoundException, Exit {
-        int i = 0;
+        //TODO support single file generation...
+        //   int i = 0;
 //        if (outFile != null) {
 //            /* Everything goes to one big file... */
 //            ByteArrayOutputStream bout = new ByteArrayOutputStream(8192);
@@ -185,14 +175,13 @@ public abstract class Gen {
             mustWrite = true;
             event = "[Forcefully writing file ";
         } else {
-            InputStream in;
-            byte[] a;
+            InputStream in = null;
             try {
                 // regrettably, there's no API to get the length in bytes
                 // for a FileObject, so we can't short-circuit reading the
                 // file here
                 in = file.openInputStream();
-                a = readBytes(in);
+                byte[] a = readBytes(in);
                 if (!Arrays.equals(a, b)) {
                     mustWrite = true;
                     event = "[Overwriting file ";
@@ -201,19 +190,21 @@ public abstract class Gen {
             } catch (FileNotFoundException ignored) {
                 mustWrite = true;
                 event = "[Creating file ";
+            } finally {
+                if (in != null) in.close();
             }
         }
 
-        if (log.verbose)
-            log.log(event + file + ']');
+        if (log.isVerbose()) log.log(event + file + ']');
 
         if (mustWrite) {
-            OutputStream out = file.openOutputStream();//getFileObjectForWriting(fqn).openOutputStream();//
+            OutputStream out = file.openOutputStream();
             out.write(b); /* No buffering, just one big write! */
             out.close();
         }
     }
 
+    @SuppressWarnings("NestedAssignment")
     protected static byte[] readBytes(InputStream in) throws IOException {
         try {
             byte[] array = new byte[in.available() + 1];
@@ -236,16 +227,15 @@ public abstract class Gen {
         CharSequence cnamedoc = c.getQualifiedName();
         CharSequence fnamedoc = f.getSimpleName();
 
-        String cname = mangler.mangle(cnamedoc, Mangle.Type.CLASS);
-        String fname = mangler.mangle(fnamedoc, Mangle.Type.FIELDSTUB);
+        String cname = Mangle.mangle(cnamedoc, Mangle.Type.CLASS);
+        String fname = Mangle.mangle(fnamedoc, Mangle.Type.FIELDSTUB);
 
         if (!f.getModifiers().contains(Modifier.STATIC))
             log.bug("tried.to.define.non.static");
 
         if (f.getModifiers().contains(Modifier.FINAL)) {
-            Object value = null;
 
-            value = f.getConstantValue();
+            Object value = f.getConstantValue();
 
             if (value != null) { /* so it is a ConstantExpression */
                 String constString = null;
@@ -253,12 +243,12 @@ public abstract class Gen {
                         || (value instanceof Byte)
                         || (value instanceof Short)) {
                     /* covers byte, short, int */
-                    constString = value.toString() + "L";
+                    constString = value.toString() + 'L';
                 } else if (value instanceof Boolean) {
                     constString = ((Boolean) value) ? "1L" : "0L";
                 } else if (value instanceof Character) {
                     Character ch = (Character) value;
-                    constString = String.valueOf(((int) ch) & 0xffff) + "L";
+                    constString = String.valueOf(((int) ch) & 0xffff) + 'L';
                 } else if (value instanceof Long) {
                     // Visual C++ supports the i64 suffix, not LL.
                     if (isWindows)
@@ -271,7 +261,7 @@ public abstract class Gen {
                     if (Float.isInfinite(fv))
                         constString = ((fv < 0) ? "-" : "") + "Inff";
                     else
-                        constString = value.toString() + "f";
+                        constString = value.toString() + 'f';
                 } else if (value instanceof Double) {
                     /* bug for bug */
                     double d = (Double) value;
@@ -281,7 +271,7 @@ public abstract class Gen {
                         constString = value.toString();
                 }
                 if (constString != null) {
-                    return "#undef " + cname + "_" + fname + lineSep + "#define " + cname + "_" + fname + " " + constString;
+                    return "#undef " + cname + '_' + fname + lineSep + "#define " + cname + '_' + fname + ' ' + constString;
                 }
 
             }
@@ -297,7 +287,7 @@ public abstract class Gen {
     }
 
     protected String cppGuardEnd() {
-        return "#ifdef __cplusplus" + lineSep + "}" + lineSep + "#endif";
+        return "#ifdef __cplusplus" + lineSep + '}' + lineSep + "#endif";
     }
 
     protected String guardBegin(String cname) {
@@ -306,6 +296,7 @@ public abstract class Gen {
                 "#define _Included_" + cname;
     }
 
+    @SuppressWarnings("UnusedParameters")
     protected String guardEnd(String cname) {
         return "#endif";
     }
@@ -320,25 +311,13 @@ public abstract class Gen {
     }
 
     protected String baseFileName(CharSequence className) {
-        return mangler.mangle(className, Mangle.Type.CLASS);
+        return Mangle.mangle(className, Mangle.Type.CLASS);
     }
 
     protected FileObject getFileObject(CharSequence className) throws IOException {
         String name = baseFileName(className) + getFileSuffix();
         return new RWFileObject(genDir, name, filer);
-        // return fileManager.getFileForOutput(StandardLocation.SOURCE_OUTPUT, "", name, null);
     }
-
-//    protected FileObject getFileObject(boolean read,CharSequence className) throws IOException {
-//        String name = baseFileName(className) + getFileSuffix();
-//        return  read ? filer.getResource(genDir,"",name): filer.createResource(genDir,"",name);
-//    }
-//    protected FileObject getFileObjectForReading(CharSequence className) throws IOException {
-//       return getFileObject(true,className);
-//    }
-//    protected FileObject getFileObjectForWriting(CharSequence className) throws IOException {
-//        return getFileObject(false,className);
-//    }
 
 
     protected String getFileSuffix() {
@@ -351,10 +330,9 @@ public abstract class Gen {
 
     List<VariableElement> getAllFields(TypeElement subclazz) {
         List<VariableElement> fields = new ArrayList<VariableElement>();
-        TypeElement cd = null;
-        Stack<TypeElement> s = new Stack<TypeElement>();
+        ArrayDeque<TypeElement> s = new ArrayDeque<TypeElement>();
 
-        cd = subclazz;
+        TypeElement cd = subclazz;
         while (true) {
             s.push(cd);
             TypeElement c = (TypeElement) (types.asElement(cd.getSuperclass()));
@@ -363,7 +341,7 @@ public abstract class Gen {
             cd = c;
         }
 
-        while (!s.empty()) {
+        while (!s.isEmpty()) {
             cd = s.pop();
             fields.addAll(ElementFilter.fieldsIn(cd.getEnclosedElements()));
         }
@@ -380,7 +358,7 @@ public abstract class Gen {
             sb.append(types.erasure(p.asType()).toString());
             sep = ",";
         }
-        sb.append(")");
+        sb.append(')');
         return sb.toString();
     }
 }
