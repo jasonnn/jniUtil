@@ -40,6 +40,7 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
+import javax.tools.StandardLocation;
 import java.io.*;
 import java.util.*;
 
@@ -66,7 +67,7 @@ public abstract class Gen {
     protected final Elements elems;
     protected final Mangle mangler;
     protected final JNILogger log;
-    protected JavaFileManager.Location genDir = NativeHeadersLocation.INSTANCE;
+    protected JavaFileManager.Location genDir = StandardLocation.SOURCE_OUTPUT; // NativeHeadersLocation.INSTANCE;
     protected final Filer filer;
     /*
      * Smartness with generated files.

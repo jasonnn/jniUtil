@@ -1,7 +1,24 @@
+configurations {
+    headerGen
+}
+
+dependencies {
+    headerGen project(':processor')
+}
+
+task generateHeadersJavaC(type: JavaCompile, group: 'build', description: 'call javac') {
+    source = sourceSets.main.java
+    classpath = configurations.compile + configurations.headerGen
+    options.debug = true
+    options.compilerArgs = ['-proc:only']
+    destinationDir = new File(project.buildDir, "headers")
+}
+
+
 task generateHeaders(dependsOn: compileJava) {
     String inputClass = 'pkg.MyClass';
 
-    String outDir = new File(project.buildDir, "headers")
+     outDir = new File(project.buildDir, "headers")
     mkdir(outDir)
 
 
@@ -10,4 +27,3 @@ task generateHeaders(dependsOn: compileJava) {
             destDir: outDir,
             classpath: sourceSets.main.output.asPath)
 }
-
