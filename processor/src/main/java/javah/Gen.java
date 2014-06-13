@@ -58,23 +58,36 @@ import java.util.*;
  */
 @SuppressWarnings("StringConcatenationMissingWhitespace")
 public abstract class Gen {
-    protected String lineSep = System.getProperty("line.separator");
+    protected static final boolean isWindows = System.getProperty("os.name").startsWith("Windows");
+    protected static final String lineSep = System.getProperty("line.separator");
 
-    protected ProcessingEnvironment processingEnvironment = null;
-    protected Types types = null;
-    protected Elements elems = null;
-    protected Mangle mangler = null;
-    protected JNILogger log;
-
-    protected Gen(JNILogger log) {
-        this.log = log;
-    }
-
+    // protected final ProcessingEnvironment processingEnvironment;
+    protected final Types types;
+    protected final Elements elems;
+    protected final Mangle mangler;
+    protected final JNILogger log;
+    protected JavaFileManager.Location genDir = NativeHeadersLocation.INSTANCE;
+    protected final Filer filer;
     /*
-     * List of classes for which we must generate output.
+     * Smartness with generated files.
      */
+    protected boolean force = false;
+    /*
+ * List of classes for which we must generate output.
+ */
     protected Set<TypeElement> classes = null;
-    static private final boolean isWindows = System.getProperty("os.name").startsWith("Windows");
+
+
+    protected Gen(JNILogger log, ProcessingEnvironment env) {
+        this.log = log;
+        //this.processingEnvironment = env;
+        this.types = env.getTypeUtils();
+        this.elems = env.getElementUtils();
+        this.filer = env.getFiler();
+        this.mangler = new Mangle(elems, types);
+
+
+    }
 
 
     /**
@@ -89,30 +102,12 @@ public abstract class Gen {
      */
     protected abstract String getIncludes();
 
-    /*
-     * Output location.
-     */
-    protected JavaFileManager.Location genDir = NativeHeadersLocation.INSTANCE;
-    protected Filer filer = null;
-
 
     @SuppressWarnings("AssignmentToCollectionOrArrayFieldFromParameter")
     public void setClasses(Set<TypeElement> classes) {
         this.classes = classes;
     }
 
-    public void setProcessingEnvironment(ProcessingEnvironment pEnv) {
-        processingEnvironment = pEnv;
-        filer = pEnv.getFiler();
-        elems = pEnv.getElementUtils();
-        types = pEnv.getTypeUtils();
-        mangler = new Mangle(elems, types);
-    }
-
-    /*
-     * Smartness with generated files.
-     */
-    protected boolean force = false;
 
     public void setForce(boolean state) {
         force = state;

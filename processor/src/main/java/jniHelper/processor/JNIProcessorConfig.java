@@ -59,13 +59,14 @@ public class JNIProcessorConfig {
             return true;
         }
     };
-    private Messager messager;
+
 
 
     public static JNIProcessorConfig fromMap(Map<String, String> config) {
         return JNIProcessorOption.createConfig(config);
     }
 
+    private Messager messager = null;
     private boolean verbose = false;
     private boolean force = false;
     private boolean verify = true;

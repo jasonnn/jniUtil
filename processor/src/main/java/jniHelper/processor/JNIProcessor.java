@@ -31,26 +31,6 @@ process
 process
  */
 public class JNIProcessor implements Processor {
-    private static final Set<String> SUPPORTED_ANNOTATIONS = Collections.singleton("*");
-
-
-    @NotNull
-    @Override
-    public Set<String> getSupportedOptions() {
-        return JNIProcessorOption.getSupportedOptions();
-    }
-
-    @NotNull
-    @Override
-    public Set<String> getSupportedAnnotationTypes() {
-        return SUPPORTED_ANNOTATIONS;
-    }
-
-    @Override
-    public SourceVersion getSupportedSourceVersion() {
-        return SourceVersion.latest();
-    }
-
 
     protected Elements elements = null;
     protected Filer filer = null;
@@ -65,29 +45,24 @@ public class JNIProcessor implements Processor {
         this.env = processingEnv;
         elements = processingEnv.getElementUtils();
         filer = processingEnv.getFiler();
-        JNIProcessorConfig config = JNIProcessorConfig.fromMap(processingEnv.getOptions());
-        config.setMessager(processingEnv.getMessager());
-        this.verify = config.isVerify();
+        // JNIProcessorConfig config = JNIProcessorConfig.fromMap(processingEnv.getOptions());
+        // config.setMessager(processingEnv.getMessager());
+        // this.verify = config.isVerify();
 
 
-        jni = new JNI(JNILogger.getDefault(config));
-        jni.setProcessingEnvironment(env);
+        jni = new JNI(new JNILogger(env.getMessager()), env);
 
     }
 
     protected void doProcess(Set<? extends TypeElement> rootElements) throws IOException, ClassNotFoundException {
         HashSet<TypeElement> natives = new HashSet<TypeElement>(rootElements.size());
-
-
         for (TypeElement element : rootElements) {
             if (Visitors.hasNativeMethods(element)) {
                 natives.add(element);
             }
         }
-
         jni.setClasses(natives);
         jni.run();
-
     }
 
 
@@ -116,10 +91,31 @@ public class JNIProcessor implements Processor {
         return ret;
     }
 
+    private static final Set<String> SUPPORTED_ANNOTATIONS = Collections.singleton("*");
 
     @NotNull
     @Override
-    public Iterable<? extends Completion> getCompletions(Element element, AnnotationMirror annotation, ExecutableElement member, String userText) {
+    public Set<String> getSupportedOptions() {
+        return JNIProcessorOption.getSupportedOptions();
+    }
+
+    @NotNull
+    @Override
+    public Set<String> getSupportedAnnotationTypes() {
+        return SUPPORTED_ANNOTATIONS;
+    }
+
+    @Override
+    public SourceVersion getSupportedSourceVersion() {
+        return SourceVersion.latest();
+    }
+
+    @NotNull
+    @Override
+    public Iterable<? extends Completion> getCompletions(Element element,
+                                                         AnnotationMirror annotation,
+                                                         ExecutableElement member,
+                                                         String userText) {
         return Collections.emptySet();
     }
 }

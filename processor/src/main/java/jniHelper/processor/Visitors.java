@@ -23,10 +23,6 @@ public class Visitors {
         return e.accept(NATIVE_METHOD_VISITOR, noVerify());
     }
 
-    public static boolean hasNativeMethods_verify(TypeElement e, Types types) {
-        return e.accept(NATIVE_METHOD_VISITOR, verify(types));
-    }
-
     static NativeCtx noVerify() {
         return NativeCtx.NO_VERIFY;
     }

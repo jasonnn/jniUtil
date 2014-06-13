@@ -28,6 +28,7 @@ package javah;
 import javah.ex.Exit;
 import javah.ex.SignatureException;
 
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.TypeMirror;
@@ -49,8 +50,8 @@ import java.util.List;
  * @author Sucheta Dambalkar(Revised)
  */
 public class JNI extends Gen {
-    public JNI(JNILogger log) {
-        super(log);
+    public JNI(JNILogger log, ProcessingEnvironment env) {
+        super(log, env);
     }
 
     @Override
