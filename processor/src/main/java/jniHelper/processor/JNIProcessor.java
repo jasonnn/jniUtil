@@ -71,13 +71,24 @@ public class JNIProcessor implements Processor {
         try {
 
             doProcess(getAllClasses(ElementFilter.typesIn(roundEnv.getRootElements())));
-        } catch (Exception e) {
-            StringWriter sw = new StringWriter();
-            e.printStackTrace(new PrintWriter(sw));
-            env.getMessager().printMessage(Diagnostic.Kind.ERROR, sw.toString());
+        } catch (ClassNotFoundException e) {
+            logException(e);
+        } catch (IOException e) {
+            logException(e);
         }
+//        catch (Exception e) {
+//            StringWriter sw = new StringWriter();
+//            e.printStackTrace(new PrintWriter(sw));
+//            env.getMessager().printMessage(Diagnostic.Kind.ERROR, sw.toString());
+//        }
 
         return false;
+    }
+
+    private void logException(Exception ex){
+        StringWriter sw = new StringWriter();
+        ex.printStackTrace(new PrintWriter(sw));
+        env.getMessager().printMessage(Diagnostic.Kind.ERROR, sw.toString());
     }
 
     private static Set<TypeElement> getAllClasses(Set<? extends TypeElement> classes) {

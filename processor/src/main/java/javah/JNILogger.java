@@ -33,6 +33,7 @@ import org.jetbrains.annotations.PropertyKey;
 import javax.annotation.processing.Messager;
 import javax.tools.Diagnostic.Kind;
 import java.text.MessageFormat;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
@@ -154,5 +155,5 @@ public class JNILogger {
         return MessageFormat.format(resourceBundle.getString(key), args);
     }
 
-    private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("javah.l10n");
+    private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("javah.l10n", Locale.getDefault(), JNILogger.class.getClassLoader());
 }
