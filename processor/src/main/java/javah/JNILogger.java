@@ -60,6 +60,10 @@ public class JNILogger {
 
     private final Messager messager;
 
+    public static JNILogger configuredWith(JNIProcessorConfig config) {
+        return new JNILogger(config.verbose, config.env.getMessager());
+    }
+
     public JNILogger(Messager messager) {
         this(true, messager);
     }

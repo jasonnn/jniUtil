@@ -25,20 +25,8 @@ public class RWFileObject implements FileObject {
         this.relativeDir = relativeDir;
     }
 
-//    static <T> T notNull(T o) {
-//        if (o == null) {
-//            System.err.println("NULL!");
-//            throw new AssertionError("null!");
-//        }
-//        return o;
-//    }
-
     protected FileObject forReading() throws IOException {
-
         return filer.getResource(location, relativeDir, name);
-        //notNull(filer).getResource(notNull(location), "", name);
-
-        // return notNull(o);
     }
 
     protected FileObject forWriting() throws IOException {
@@ -114,7 +102,7 @@ public class RWFileObject implements FileObject {
     public String toString() {
         return "RW_FILE_OBJECT{" +
                 "name=" + name +
-                "relDir=" + relativeDir +
+                ", relDir=" + relativeDir +
                 ", location=" + location +
                 '}';
     }

@@ -1,23 +1,15 @@
 package jniHelper.processor;
 
 import com.google.testing.compile.JavaFileObjects;
-import compiletesting.TestingProcessor;
 import org.junit.Test;
 import org.truth0.Truth;
 
-import javax.annotation.processing.Processor;
-import javax.lang.model.element.TypeElement;
 import javax.tools.*;
-
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
-import java.util.Set;
 
 import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
 
@@ -49,11 +41,11 @@ public class JNIProcessorTest {
         jfm.setLocation(StandardLocation.SOURCE_OUTPUT, Collections.singleton(srcOut));
         jfm.setLocation(StandardLocation.CLASS_OUTPUT, Collections.singleton(compOut));
 
-        System.out.println("custom? "+jfm.hasLocation(CUSTOM));
+       // System.out.println("custom? "+jfm.hasLocation(CUSTOM));
 
         JavaCompiler.CompilationTask task = compiler.getTask(new PrintWriter(System.out, true), jfm, collector, Collections.<String>emptySet(), Collections.<String>emptySet(), Collections.singletonList(MY_CLASS_TEST));
         task.setLocale(Locale.getDefault());
-        task.setProcessors(Collections.singleton(processor));
+       // task.setProcessors(Collections.singleton(processor));
         task.call();
 
         for (Diagnostic<? extends JavaFileObject> diagnostic : collector.getDiagnostics()) {
@@ -62,27 +54,7 @@ public class JNIProcessorTest {
 
     }
 
-    static final JavaFileManager.Location CUSTOM = new JavaFileManager.Location() {
-        @Override
-        public String getName() {
-            return "CUSTOM";
-        }
 
-        @Override
-        public boolean isOutputLocation() {
-            return true;
-        }
-    };
-
-    static final Processor processor = new TestingProcessor() {
-        @Override
-        protected void doProcess(Set<TypeElement> roots) throws IOException {
-            FileObject res = env.getFiler().createResource(CUSTOM, "", "tst");
-            Writer w = res.openWriter();
-            w.write("asdasdasd");
-            w.close();
-        }
-    };
 
     //    static Field resultField;
 //    static Field genFilesField;

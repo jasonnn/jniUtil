@@ -27,6 +27,7 @@ package javah;
 
 import javah.ex.Exit;
 import javah.ex.SignatureException;
+import jniHelper.processor.JNIProcessorConfig;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -35,6 +36,8 @@ import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.tools.FileObject;
+import javax.tools.StandardLocation;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -52,7 +55,35 @@ import java.util.List;
  * @author Sucheta Dambalkar(Revised)
  */
 public class JNI extends Gen {
-    public JNI(JNILogger log, ProcessingEnvironment env, boolean force, @Nullable String relOutPath, @Nullable FileObject outFile) {
+
+    public static JNI.Builder builder() {
+        return new JNI.Builder();
+    }
+
+    public static class Builder {
+        private JNILogger logger = null;
+        private JNIProcessorConfig config = null;
+
+        public JNI.Builder withLogger(JNILogger logger) {
+            this.logger = logger;
+            return this;
+        }
+
+        public JNI.Builder configuredWith(JNIProcessorConfig config) {
+            this.config = config;
+            return this;
+        }
+
+        public JNI build() throws IOException {
+            FileObject outFile = config.outFile != null ?
+                    config.env.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, "", config.outFile) : null;
+            return new JNI(logger, config.env, config.force, config.outDir, outFile);
+        }
+
+    }
+
+
+    JNI(JNILogger log, ProcessingEnvironment env, boolean force, @Nullable String relOutPath, @Nullable FileObject outFile) {
         super(log, env, force, relOutPath, outFile);
     }
 
