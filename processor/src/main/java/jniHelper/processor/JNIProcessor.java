@@ -47,7 +47,9 @@ public class JNIProcessor implements Processor {
         elements = processingEnv.getElementUtils();
         filer = processingEnv.getFiler();
         JNIProcessorConfig config = JNIProcessorConfig.fromEnv(processingEnv);
-
+        if (config.verbose) {
+            env.getMessager().printMessage(Diagnostic.Kind.OTHER, config.toString());
+        }
         this.verify = config.verify;
 
 
@@ -60,12 +62,10 @@ public class JNIProcessor implements Processor {
     }
 
     JNI createJNI(JNIProcessorConfig config) throws IOException {
-
         JNILogger logger = new JNILogger(config.verbose, env.getMessager());
-        FileObject outFile = config.outFile != null ? filer.createResource(StandardLocation.SOURCE_OUTPUT, "", config.outFile) : null;
+        FileObject outFile = config.outFile != null ?
+                filer.createResource(StandardLocation.SOURCE_OUTPUT, "", config.outFile) : null;
         return new JNI(logger, env, config.force, config.outDir, outFile);
-
-
     }
 
     protected void doProcess(Set<? extends TypeElement> rootElements) throws IOException, ClassNotFoundException {

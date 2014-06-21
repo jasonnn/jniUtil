@@ -114,6 +114,7 @@ public class RWFileObject implements FileObject {
     public String toString() {
         return "RW_FILE_OBJECT{" +
                 "name=" + name +
+                "relDir=" + relativeDir +
                 ", location=" + location +
                 '}';
     }

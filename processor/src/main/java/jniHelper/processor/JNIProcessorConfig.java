@@ -119,6 +119,18 @@ public class JNIProcessorConfig {
     @Nullable
     public final String outFile;
 
+    @Override
+    public String toString() {
+        return "JNIProcessorConfig{" +
+                "messager=" + messager +
+                ", verbose=" + verbose +
+                ", force=" + force +
+                ", verify=" + verify +
+                ", outDir='" + outDir + '\'' +
+                ", outFile='" + outFile + '\'' +
+                '}';
+    }
+
     public boolean singleFile() {
         return outFile != null;
     }
