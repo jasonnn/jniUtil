@@ -2,28 +2,37 @@ configurations {
     headerGen
 }
 
+repositories {
+    mavenLocal()
+}
 dependencies {
-    headerGen project(':processor')
+    headerGen project(':processor')//'jniUtil:processor:1.0'//project(':processor')
 }
 
 task generateHeadersJavaC(type: JavaCompile, group: 'build', description: 'call javac') {
     source = sourceSets.main.java
     classpath = configurations.compile + configurations.headerGen
     options.debug = true
-    options.compilerArgs = ['-proc:only']
+    options.compilerArgs = ['-proc:only',
+                            '-Ajavah.verbose',
+                            '-Ajavah.force=yes',
+                            '-Ajavah.outDir=something']
     destinationDir = new File(project.buildDir, "headers")
 }
 
 
-task generateHeaders(dependsOn: compileJava) {
-    String inputClass = 'pkg.MyClass';
 
-     outDir = new File(project.buildDir, "headers")
+task generateHeaders << {
+    def inputClass = 'pkg.MyClass'
+
+    def outDir = new File(project.buildDir, "headers")
     mkdir(outDir)
 
+    def cp = sourceSets.main.output.asPath
 
     ant.javah(class: inputClass,
-            force: true,
             destDir: outDir,
-            classpath: sourceSets.main.output.asPath)
+            classpath: cp)
 }
+
+generateHeaders.dependsOn compileJava
