@@ -13,6 +13,8 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
+import javax.tools.FileObject;
+import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -37,27 +39,44 @@ public class JNIProcessor implements Processor {
     protected ProcessingEnvironment env = null;
     JNI jni = null;
 
-
-    boolean verify = false;
+    protected boolean verify = false;
 
     @Override
     public void init(@NotNull ProcessingEnvironment processingEnv) {
         this.env = processingEnv;
         elements = processingEnv.getElementUtils();
         filer = processingEnv.getFiler();
-        // JNIProcessorConfig config = JNIProcessorConfig.fromMap(processingEnv.getOptions());
-        // config.setMessager(processingEnv.getMessager());
-        // this.verify = config.isVerify();
+        JNIProcessorConfig config = JNIProcessorConfig.fromEnv(processingEnv);
+
+        this.verify = config.verify;
 
 
-        jni = new JNI(new JNILogger(env.getMessager()), env);
+        try {
+            jni = createJNI(config);
+        } catch (IOException e) {
+            handleException(e);
+        }
+
+    }
+
+    JNI createJNI(JNIProcessorConfig config) throws IOException {
+
+        JNILogger logger = new JNILogger(config.verbose, env.getMessager());
+        FileObject outFile = config.outFile != null ? filer.createResource(StandardLocation.SOURCE_OUTPUT, "", config.outFile) : null;
+        return new JNI(logger, env, config.force, config.outDir, outFile);
+
 
     }
 
     protected void doProcess(Set<? extends TypeElement> rootElements) throws IOException, ClassNotFoundException {
         HashSet<TypeElement> natives = new HashSet<TypeElement>(rootElements.size());
+
+        NativeMethodFinder finder = verify ? NativeMethodFinder.withVerification(env.getTypeUtils())
+                : NativeMethodFinder.noVerify();
+
         for (TypeElement element : rootElements) {
-            if (Visitors.hasNativeMethods(element)) {
+
+            if (finder.hasNativeMethods(element)) {
                 natives.add(element);
             }
         }
@@ -71,23 +90,16 @@ public class JNIProcessor implements Processor {
         try {
 
             doProcess(getAllClasses(ElementFilter.typesIn(roundEnv.getRootElements())));
-        } catch (ClassNotFoundException e) {
-            logException(e);
-        } catch (IOException e) {
-            logException(e);
+        } catch (Exception e) {
+            handleException(e);
         }
-//        catch (Exception e) {
-//            StringWriter sw = new StringWriter();
-//            e.printStackTrace(new PrintWriter(sw));
-//            env.getMessager().printMessage(Diagnostic.Kind.ERROR, sw.toString());
-//        }
 
         return false;
     }
 
-    private void logException(Exception ex){
+    void handleException(Exception e) {
         StringWriter sw = new StringWriter();
-        ex.printStackTrace(new PrintWriter(sw));
+        e.printStackTrace(new PrintWriter(sw));
         env.getMessager().printMessage(Diagnostic.Kind.ERROR, sw.toString());
     }
 
@@ -107,7 +119,7 @@ public class JNIProcessor implements Processor {
     @NotNull
     @Override
     public Set<String> getSupportedOptions() {
-        return JNIProcessorOption.getSupportedOptions();
+        return JNIProcessorConfig.getSupportedOptions();
     }
 
     @NotNull

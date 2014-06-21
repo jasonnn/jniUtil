@@ -49,18 +49,7 @@ import java.util.ResourceBundle;
  * risk.  This code and its internal interfaces are subject to change
  * or deletion without notice.</b></p>
  */
-//TODO use messager
 public class JNILogger {
-
-    public static JNILogger getDefault(JNIProcessorConfig config) {
-        // DiagnosticListener<JavaFileObject> diagnosticListener = IOUtils.getDiagnosticListenerForStream(System.err);
-
-        return new JNILogger(config.getMessager());
-    }
-
-    public static JNILogger getDefault() {
-        return getDefault(JNIProcessorConfig.DEFAULT);
-    }
 
     public boolean isVerbose() {
         return verbose;

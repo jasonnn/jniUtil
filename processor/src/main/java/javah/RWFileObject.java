@@ -12,22 +12,37 @@ import java.net.URI;
  * Created by jason on 6/10/14.
  */
 public class RWFileObject implements FileObject {
+
     private final JavaFileManager.Location location;
     private final CharSequence name;
     private final Filer filer;
+    private final String relativeDir;
 
-    public RWFileObject(JavaFileManager.Location location, CharSequence name, Filer filer) {
+    public RWFileObject(JavaFileManager.Location location, CharSequence name, Filer filer, String relativeDir) {
         this.location = location;
         this.name = name;
         this.filer = filer;
+        this.relativeDir = relativeDir;
     }
 
+//    static <T> T notNull(T o) {
+//        if (o == null) {
+//            System.err.println("NULL!");
+//            throw new AssertionError("null!");
+//        }
+//        return o;
+//    }
+
     protected FileObject forReading() throws IOException {
-        return filer.getResource(location, "", name);
+
+        return filer.getResource(location, relativeDir, name);
+        //notNull(filer).getResource(notNull(location), "", name);
+
+        // return notNull(o);
     }
 
     protected FileObject forWriting() throws IOException {
-        return filer.createResource(location, "", name);
+        return filer.createResource(location, relativeDir, name);
     }
 
     @NotNull
@@ -36,7 +51,7 @@ public class RWFileObject implements FileObject {
         try {
             return forWriting().toUri();
         } catch (IOException e) {
-          throw new RuntimeException(e);
+            throw new RuntimeException(e);
         }
 
     }

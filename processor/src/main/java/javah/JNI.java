@@ -27,12 +27,14 @@ package javah;
 
 import javah.ex.Exit;
 import javah.ex.SignatureException;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
+import javax.tools.FileObject;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -50,8 +52,8 @@ import java.util.List;
  * @author Sucheta Dambalkar(Revised)
  */
 public class JNI extends Gen {
-    public JNI(JNILogger log, ProcessingEnvironment env) {
-        super(log, env);
+    public JNI(JNILogger log, ProcessingEnvironment env, boolean force, @Nullable String relOutPath, @Nullable FileObject outFile) {
+        super(log, env, force, relOutPath, outFile);
     }
 
     @Override

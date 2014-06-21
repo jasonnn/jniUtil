@@ -27,7 +27,7 @@ package javah;
 
 
 import javah.ex.Exit;
-import jniHelper.processor.NativeHeadersLocation;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -39,7 +39,6 @@ import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.FileObject;
-import javax.tools.JavaFileManager;
 import javax.tools.StandardLocation;
 import java.io.*;
 import java.util.*;
@@ -62,30 +61,35 @@ public abstract class Gen {
     protected static final boolean isWindows = System.getProperty("os.name").startsWith("Windows");
     protected static final String lineSep = System.getProperty("line.separator");
 
-    // protected final ProcessingEnvironment processingEnvironment;
     protected final Types types;
     protected final Elements elems;
     protected final Mangle mangler;
     protected final JNILogger log;
-    protected JavaFileManager.Location genDir = StandardLocation.SOURCE_OUTPUT; // NativeHeadersLocation.INSTANCE;
     protected final Filer filer;
     /*
      * Smartness with generated files.
      */
-    protected boolean force = false;
+    protected final boolean force;
     /*
  * List of classes for which we must generate output.
  */
     protected Set<TypeElement> classes = null;
 
+    @Nullable
+    protected final FileObject outFile;
+    @Nullable
+    protected final String outDirName;
 
-    protected Gen(JNILogger log, ProcessingEnvironment env) {
+
+    protected Gen(JNILogger log, ProcessingEnvironment env, boolean force, @Nullable String relOutPath, @Nullable FileObject outFile) {
         this.log = log;
-        //this.processingEnvironment = env;
         this.types = env.getTypeUtils();
         this.elems = env.getElementUtils();
         this.filer = env.getFiler();
         this.mangler = new Mangle(elems, types);
+        this.force = force;
+        this.outDirName = relOutPath;
+        this.outFile = outFile;
 
 
     }
@@ -110,10 +114,6 @@ public abstract class Gen {
     }
 
 
-    public void setForce(boolean state) {
-        force = state;
-    }
-
     /**
      * We explicitly need to write ASCII files because that is what C
      * compilers understand.
@@ -135,27 +135,26 @@ public abstract class Gen {
      * expr `du -sk` / `ls *.h | wc -l`
      */
     public void run() throws IOException, ClassNotFoundException, Exit {
-        //TODO support single file generation...
-        //   int i = 0;
-//        if (outFile != null) {
-//            /* Everything goes to one big file... */
-//            ByteArrayOutputStream bout = new ByteArrayOutputStream(8192);
-//            writeFileTop(bout); /* only once */
-//
-//            for (TypeElement t : classes) {
-//                write(bout, t);
-//            }
-//
-//            writeIfChanged(bout.toByteArray(), outFile);
-//        } else {
-            /* Each class goes to its own file... */
-        for (TypeElement t : classes) {
+
+        if (outFile != null) {
+            /* Everything goes to one big file... */
             ByteArrayOutputStream bout = new ByteArrayOutputStream(8192);
-            writeFileTop(bout);
-            write(bout, t);
-            writeIfChanged(bout.toByteArray(), getFileObject(t.getQualifiedName()));
+            writeFileTop(bout); /* only once */
+
+            for (TypeElement t : classes) {
+                write(bout, t);
+            }
+
+            writeIfChanged(bout.toByteArray(), outFile);
+        } else {
+            /* Each class goes to its own file... */
+            for (TypeElement t : classes) {
+                ByteArrayOutputStream bout = new ByteArrayOutputStream(8192);
+                writeFileTop(bout);
+                write(bout, t);
+                writeIfChanged(bout.toByteArray(), getFileObject(t.getQualifiedName()));
+            }
         }
-        // }
     }
 
     /*
@@ -163,6 +162,7 @@ public abstract class Gen {
      * is done if either the file doesn't exist or if the contents are
      * different.
      */
+
     private void writeIfChanged(byte[] b, FileObject file) throws IOException {
         boolean mustWrite = false;
         String event = "[No need to update file ";
@@ -312,7 +312,7 @@ public abstract class Gen {
 
     protected FileObject getFileObject(CharSequence className) throws IOException {
         String name = baseFileName(className) + getFileSuffix();
-        return new RWFileObject(genDir, name, filer);
+        return new RWFileObject(StandardLocation.SOURCE_OUTPUT, name, filer, outDirName);
     }
 
 
