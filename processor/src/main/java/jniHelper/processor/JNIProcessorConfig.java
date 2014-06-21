@@ -74,7 +74,7 @@ public class JNIProcessorConfig {
     }
 
     public static JNIProcessorConfig fromEnv(ProcessingEnvironment environment) {
-        Builder builder = newBuilder().setMessager(environment.getMessager());
+        Builder builder = newBuilder().setEnvironment(environment);
         for (Map.Entry<String, String> entry : environment.getOptions().entrySet()) {
             opts.get(entry.getKey()).handle(builder, entry.getValue());
         }
@@ -89,8 +89,8 @@ public class JNIProcessorConfig {
         throw new IllegalArgumentException("expected one of [true,false] but got " + str);
     }
 
-    public JNIProcessorConfig(@NotNull Messager messager, boolean verbose, boolean force, boolean verify, @Nullable String outDir, @Nullable String outFile) {
-        this.messager = messager;
+    public JNIProcessorConfig(@NotNull ProcessingEnvironment env, boolean verbose, boolean force, boolean verify, @Nullable String outDir, @Nullable String outFile) {
+        this.env = env;
         this.verbose = verbose;
         this.force = force;
         this.verify = verify;
@@ -110,7 +110,8 @@ public class JNIProcessorConfig {
     }
 
     @NotNull
-    public final Messager messager;
+    public final ProcessingEnvironment env;
+
     public final boolean verbose;
     public final boolean force;
     public final boolean verify;
@@ -122,7 +123,7 @@ public class JNIProcessorConfig {
     @Override
     public String toString() {
         return "JNIProcessorConfig{" +
-                "messager=" + messager +
+                "env=" + env +
                 ", verbose=" + verbose +
                 ", force=" + force +
                 ", verify=" + verify +
@@ -140,17 +141,19 @@ public class JNIProcessorConfig {
     }
 
     public static class Builder {
-        private Messager messager = null;
+
         private boolean verbose = false;
         private boolean force = false;
         private boolean verify = false;
         private String outDir = null;
         private String outFile = null;
+        private ProcessingEnvironment env = null;
 
-        public Builder setMessager(Messager messager) {
-            this.messager = messager;
+        public Builder setEnvironment(ProcessingEnvironment environment) {
+            this.env = environment;
             return this;
         }
+
 
         public Builder setVerbose(boolean verbose) {
             this.verbose = verbose;
@@ -178,7 +181,7 @@ public class JNIProcessorConfig {
         }
 
         public JNIProcessorConfig build() {
-            return new JNIProcessorConfig(messager, verbose, force, verify, outDir, outFile);
+            return new JNIProcessorConfig(env, verbose, force, verify, outDir, outFile);
         }
     }
 }
